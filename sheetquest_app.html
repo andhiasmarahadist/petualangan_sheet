@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SheetQuest - RPG Spreadsheet Adventure</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    <style>
+        /* CSS Override untuk Blogger */
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100vh;
+            background-color: #1a202c; color: #e2e8f0; font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .blogger-element, #header, #footer, .sidebar, .comments { display: none !important; }
+        #app-container { min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); position: relative; }
+        
+        /* Tema RPG */
+        .font-rpg { font-family: 'Press Start 2P', cursive; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .btn-rpg {
+            background: linear-gradient(to bottom, #ef4444, #991b1b); border: 2px solid #fca5a5;
+            color: white; font-family: 'Press Start 2P', cursive; text-shadow: 2px 2px 0 #000;
+            transition: all 0.2s;
+        }
+        .btn-rpg:hover { transform: scale(1.05); filter: brightness(1.2); }
+        .btn-rpg:active { transform: scale(0.95); }
+        .btn-rpg-blue { background: linear-gradient(to bottom, #3b82f6, #1e3a8a); border-color: #93c5fd; }
+        .btn-rpg-green { background: linear-gradient(to bottom, #10b981, #065f46); border-color: #6ee7b7; }
+        
+        /* Health Bar */
+        .hp-bar-bg { background: #333; border: 3px solid #000; border-radius: 8px; height: 24px; width: 100%; position: relative; overflow: hidden; }
+        .hp-bar-fill { background: linear-gradient(90deg, #ef4444, #22c55e); height: 100%; transition: width 0.5s ease-in-out; }
+        .hp-text { position: absolute; top: 0; left: 0; width: 100%; text-align: center; font-size: 10px; line-height: 20px; color: white; text-shadow: 1px 1px 0 #000; font-family: 'Press Start 2P', cursive; }
+        
+        /* Battle Animations */
+        @keyframes dash-right { 0% { transform: translateX(0); } 50% { transform: translateX(100px) scale(1.2); } 100% { transform: translateX(0); } }
+        @keyframes dash-left { 0% { transform: translateX(0); } 50% { transform: translateX(-100px) scale(1.2); } 100% { transform: translateX(0); } }
+        @keyframes shake-hurt { 0% { transform: translateX(0); filter: brightness(1); } 20% { transform: translateX(-10px); filter: brightness(0.5) sepia(1) hue-rotate(-50deg) saturate(5); } 40% { transform: translateX(10px); } 60% { transform: translateX(-10px); } 80% { transform: translateX(10px); } 100% { transform: translateX(0); filter: brightness(1); } }
+        
+        .anim-attack-right { animation: dash-right 0.4s ease-in-out; }
+        .anim-attack-left { animation: dash-left 0.4s ease-in-out; }
+        .anim-hurt { animation: shake-hurt 0.5s ease-in-out; }
+        
+        /* Floating Element */
+        .floating { animation: floating 3s ease-in-out infinite; }
+        @keyframes floating { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+
+        /* Hide Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+    </style>
+</head>
+<body>
+
+<div id="app-container" class="text-slate-200">
+    <div style="display:none;">
+        <img src="https://i.imghippo.com/files/svX7245zIU.png" alt="SheetQuest Thumbnail"/>
+        <p>Aplikasi RPG Pembelajaran Google Sheets - SheetQuest.</p>
+    </div>
+
+    <div id="view-login" class="flex items-center justify-center min-h-screen">
+        <div class="glass-panel p-8 rounded-2xl shadow-2xl w-full max-w-md text-center animate__animated animate__fadeInDown">
+            <img src="https://i.imghippo.com/files/svX7245zIU.png" alt="SheetQuest Logo" class="w-48 mx-auto mb-6 floating drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]">
+            <h1 class="font-rpg text-xl text-blue-400 mb-2">SHEET QUEST</h1>
+            <p class="text-slate-400 text-sm mb-8">Masuki Arena Spreadsheet!</p>
+            
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="mb-4 text-left">
+                    <label class="block text-sm font-semibold mb-2 text-slate-300"><i class="fas fa-user mr-2"></i>Username</label>
+                    <input type="text" id="login-username" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:border-blue-500 text-white" required placeholder="Masukkan Username">
+                </div>
+                <div class="mb-6 text-left">
+                    <label class="block text-sm font-semibold mb-2 text-slate-300"><i class="fas fa-lock mr-2"></i>Password</label>
+                    <input type="password" id="login-password" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg focus:outline-none focus:border-blue-500 text-white" required placeholder="Masukkan Password">
+                </div>
+                <button type="submit" id="btn-login" class="w-full btn-rpg-blue rounded-lg py-3 text-sm">
+                    <i class="fas fa-sign-in-alt mr-2"></i> MASUK GAME
+                </button>
+            </form>
+            <div id="preview-badge" class="mt-4 text-xs text-yellow-400 font-mono hidden">
+                <i class="fas fa-exclamation-triangle"></i> MODE PREVIEW AKTIF (Data Dummy)
+            </div>
+        </div>
+    </div>
+
+    <div id="view-admin" class="hidden min-h-screen flex flex-col md:flex-row">
+        <!-- Sidebar -->
+        <div class="w-full md:w-64 glass-panel border-r border-slate-700 flex flex-col justify-between">
+            <div>
+                <div class="p-6 text-center border-b border-slate-700">
+                    <img src="https://i.imghippo.com/files/svX7245zIU.png" alt="Logo" class="w-24 mx-auto mb-2">
+                    <h2 class="font-rpg text-xs text-blue-400">GAME MASTER</h2>
+                </div>
+                <nav class="p-4 space-y-2">
+                    <button onclick="adminNav('siswa')" class="w-full text-left p-3 rounded-lg hover:bg-slate-700 transition flex items-center admin-nav active-nav bg-slate-700">
+                        <i class="fas fa-users w-6"></i> Data Siswa
+                    </button>
+                    <button onclick="adminNav('permainan')" class="w-full text-left p-3 rounded-lg hover:bg-slate-700 transition flex items-center admin-nav">
+                        <i class="fas fa-gamepad w-6"></i> Permainan
+                    </button>
+                    <button onclick="adminNav('laporan')" class="w-full text-left p-3 rounded-lg hover:bg-slate-700 transition flex items-center admin-nav">
+                        <i class="fas fa-chart-bar w-6"></i> Laporan
+                    </button>
+                    <button onclick="adminNav('pengaturan')" class="w-full text-left p-3 rounded-lg hover:bg-slate-700 transition flex items-center admin-nav">
+                        <i class="fas fa-cog w-6"></i> Pengaturan
+                    </button>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-700">
+                <button onclick="doLogout()" class="w-full p-2 bg-red-600/20 text-red-400 hover:bg-red-600/40 rounded-lg transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="flex-1 p-6 overflow-y-auto" id="admin-content">
+            
+            <!-- Admin: Data Siswa -->
+            <div id="admin-siswa" class="admin-panel animate__animated animate__fadeIn">
+                <h2 class="text-2xl font-bold mb-6 border-b border-slate-700 pb-2"><i class="fas fa-users text-blue-400 mr-2"></i>Manajemen Pasukan (Siswa)</h2>
+                
+                <div class="flex flex-wrap gap-4 mb-6">
+                    <button onclick="showAddStudentModal()" class="btn-rpg-green rounded-lg px-4 py-2 text-xs"><i class="fas fa-user-plus mr-1"></i> Tambah Manual</button>
+                    <button onclick="downloadTemplate()" class="bg-slate-700 hover:bg-slate-600 text-white rounded-lg px-4 py-2 text-xs font-semibold border border-slate-500"><i class="fas fa-file-excel mr-1"></i> Template Excel</button>
+                    <label class="bg-blue-700 hover:bg-blue-600 text-white rounded-lg px-4 py-2 text-xs font-semibold cursor-pointer border border-blue-500">
+                        <i class="fas fa-upload mr-1"></i> Upload Bulk Excel
+                        <input type="file" id="upload-excel" accept=".xlsx, .xls" class="hidden" onchange="handleExcelUpload(event)">
+                    </label>
+                </div>
+                
+                <div class="glass-panel rounded-xl overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-800 text-slate-300">
+                            <tr>
+                                <th class="p-4">Username</th>
+                                <th class="p-4">Nama Lengkap</th>
+                                <th class="p-4">Password</th>
+                                <th class="p-4 text-center">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-siswa-body" class="divide-y divide-slate-700">
+                            <!-- Diisi JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Admin: Permainan -->
+            <div id="admin-permainan" class="admin-panel hidden animate__animated animate__fadeIn">
+                <h2 class="text-2xl font-bold mb-6 border-b border-slate-700 pb-2"><i class="fas fa-gamepad text-purple-400 mr-2"></i>Sesi Petualangan</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-xl">
+                        <h3 class="font-rpg text-sm text-yellow-400 mb-4">BUAT SESI BARU</h3>
+                        <label class="block text-sm mb-2 text-slate-300">Jumlah Soal Monster (10-40)</label>
+                        <input type="number" id="input-jumlah-soal" min="10" max="40" value="10" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg mb-4 text-white">
+                        <button onclick="generateGame()" class="w-full btn-rpg rounded-lg py-3 text-xs"><i class="fas fa-magic mr-2"></i> GENERATE GAME</button>
+                    </div>
+                    
+                    <div class="glass-panel p-6 rounded-xl border border-yellow-500/30 relative overflow-hidden" id="active-session-panel">
+                        <div id="no-session-msg" class="text-center text-slate-400 py-8">
+                            <i class="fas fa-ghost text-4xl mb-3 opacity-50"></i><br>Belum ada sesi aktif.
+                        </div>
+                        <div id="active-session-content" class="hidden text-center">
+                            <h3 class="text-sm text-slate-300 mb-1">KODE PERMAINAN:</h3>
+                            <div class="font-rpg text-4xl text-yellow-400 mb-4 tracking-widest drop-shadow-[0_0_10px_rgba(250,204,21,0.6)]" id="display-game-code">----</div>
+                            
+                            <div class="bg-slate-800 rounded-lg p-3 mb-4 text-left h-32 overflow-y-auto text-sm" id="lobby-monitor">
+                                <div class="text-slate-400 text-xs mb-2">Petualang di Lobby: <span id="lobby-count" class="text-white font-bold">0</span></div>
+                                <ul id="lobby-list" class="space-y-1"></ul>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="startGame()" id="btn-start-game" class="flex-1 btn-rpg-green rounded-lg py-2 text-xs"><i class="fas fa-play mr-1"></i> MULAI</button>
+                                <button onclick="stopGame()" class="flex-1 bg-red-800 hover:bg-red-700 text-white border border-red-500 rounded-lg py-2 text-xs font-rpg"><i class="fas fa-stop mr-1"></i> HENTIKAN</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin: Laporan -->
+            <div id="admin-laporan" class="admin-panel hidden animate__animated animate__fadeIn">
+                <h2 class="text-2xl font-bold mb-6 border-b border-slate-700 pb-2"><i class="fas fa-chart-bar text-green-400 mr-2"></i>Buku Catatan (Laporan)</h2>
+                
+                <div class="glass-panel p-6 rounded-xl mb-6 flex items-end gap-4">
+                    <div class="flex-1">
+                        <label class="block text-sm mb-2 text-slate-300">Pilih Kode Sesi</label>
+                        <select id="select-report-session" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white outline-none focus:border-blue-500">
+                            <!-- Diisi JS -->
+                            <option value="">Pilih sesi permainan...</option>
+                        </select>
+                    </div>
+                    <button onclick="loadReport()" class="btn-rpg-blue rounded-lg px-6 py-3 text-xs h-[50px]"><i class="fas fa-search mr-1"></i> Lihat Data</button>
+                </div>
+                
+                <div id="report-content" class="hidden">
+                    <button onclick="downloadReport()" class="mb-4 bg-green-700 hover:bg-green-600 text-white rounded-lg px-4 py-2 text-xs font-semibold border border-green-500"><i class="fas fa-file-excel mr-1"></i> Download Excel</button>
+                    <div class="glass-panel rounded-xl overflow-hidden">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-800 text-slate-300">
+                                <tr>
+                                    <th class="p-4">Nama Petualang</th>
+                                    <th class="p-4">Sisa HP</th>
+                                    <th class="p-4">Skor (0-100)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-report-body" class="divide-y divide-slate-700">
+                                <!-- Diisi JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Admin: Pengaturan -->
+            <div id="admin-pengaturan" class="admin-panel hidden animate__animated animate__fadeIn">
+                <h2 class="text-2xl font-bold mb-6 border-b border-slate-700 pb-2"><i class="fas fa-cog text-slate-400 mr-2"></i>Pengaturan Game Master</h2>
+                <div class="glass-panel p-6 rounded-xl max-w-md">
+                    <h3 class="font-bold text-lg mb-4">Ganti Password Admin</h3>
+                    <div class="mb-4">
+                        <label class="block text-sm mb-2 text-slate-300">Password Baru</label>
+                        <input type="password" id="admin-new-pass" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white" placeholder="Min. 6 karakter">
+                    </div>
+                    <button onclick="changePassword('admin-new-pass')" class="btn-rpg-blue rounded-lg px-4 py-2 text-xs w-full"><i class="fas fa-save mr-2"></i> Simpan Password</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-student" class="hidden min-h-screen flex flex-col">
+        <!-- Header Siswa -->
+        <div class="glass-panel border-b border-slate-700 p-4 flex justify-between items-center z-10 relative shadow-lg">
+            <div class="flex items-center gap-3">
+                <img src="https://i.imghippo.com/files/svX7245zIU.png" alt="Logo" class="w-10">
+                <div>
+                    <div class="font-rpg text-xs text-blue-400">Pahlawan: <span id="student-name-display" class="text-white">Player</span></div>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="showStudentSettings()" class="bg-slate-700 hover:bg-slate-600 text-white p-2 rounded-lg text-xs"><i class="fas fa-key"></i> Pass</button>
+                <button onclick="doLogout()" class="bg-red-800 hover:bg-red-700 text-white p-2 rounded-lg text-xs"><i class="fas fa-power-off"></i></button>
+            </div>
+        </div>
+
+        <!-- Student Area -->
+        <div class="flex-1 flex items-center justify-center p-4 relative bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+            
+            <!-- Area 1: Input Kode -->
+            <div id="student-input-code" class="glass-panel p-8 rounded-2xl text-center max-w-md w-full animate__animated animate__zoomIn">
+                <i class="fas fa-door-closed text-6xl text-slate-500 mb-4 drop-shadow-lg"></i>
+                <h2 class="font-rpg text-lg text-yellow-400 mb-2">GERBANG DUNIA</h2>
+                <p class="text-sm text-slate-400 mb-6">Masukkan Kode Sesi dari Game Master untuk memulai petualangan.</p>
+                
+                <input type="text" id="input-game-code" maxlength="6" class="w-full p-4 text-center font-rpg text-2xl uppercase bg-slate-800 border-2 border-slate-600 rounded-lg focus:border-yellow-500 focus:outline-none text-yellow-400 mb-4 tracking-widest" placeholder="------">
+                <button onclick="joinGame()" class="w-full btn-rpg rounded-lg py-3 text-xs"><i class="fas fa-compass mr-2"></i> MASUKI PORTAL</button>
+            </div>
+
+            <!-- Area 2: Lobby (Ruang Tunggu) -->
+            <div id="student-lobby" class="hidden glass-panel p-6 rounded-2xl w-full max-w-2xl animate__animated animate__fadeIn">
+                <h2 class="font-rpg text-center text-blue-400 mb-6 border-b border-slate-700 pb-3">TAVERN (RUANG TUNGGU)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Kiri: Pilih Avatar -->
+                    <div class="text-center">
+                        <h3 class="text-sm font-bold text-slate-300 mb-3">Pilih Wujud Pahlawanmu</h3>
+                        <div class="flex justify-center gap-4 mb-4">
+                            <button onclick="selectAvatar('⚔️')" class="avatar-btn text-4xl p-3 bg-slate-800 border-2 border-slate-600 rounded-xl hover:border-blue-500 transition focus:border-blue-500 focus:bg-slate-700">⚔️<div class="text-[10px] mt-1 text-slate-400 font-sans">Ksatria</div></button>
+                            <button onclick="selectAvatar('🧙‍♂️')" class="avatar-btn text-4xl p-3 bg-slate-800 border-2 border-slate-600 rounded-xl hover:border-blue-500 transition focus:border-blue-500 focus:bg-slate-700 ring-2 ring-blue-500">🧙‍♂️<div class="text-[10px] mt-1 text-slate-400 font-sans">Penyihir</div></button>
+                            <button onclick="selectAvatar('🏹')" class="avatar-btn text-4xl p-3 bg-slate-800 border-2 border-slate-600 rounded-xl hover:border-blue-500 transition focus:border-blue-500 focus:bg-slate-700">🏹<div class="text-[10px] mt-1 text-slate-400 font-sans">Pemanah</div></button>
+                        </div>
+                        <div class="p-3 bg-blue-900/30 border border-blue-500/50 rounded-lg flex items-center justify-center gap-3 animate-pulse">
+                            <i class="fas fa-hourglass-half text-blue-400"></i>
+                            <span class="text-xs text-blue-200">Menunggu Game Master memulai...</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Kanan: Daftar Teman -->
+                    <div class="bg-slate-800/80 rounded-xl p-4 border border-slate-700 h-64 flex flex-col">
+                        <h3 class="text-xs font-bold text-slate-400 mb-2">Petualang yang hadir:</h3>
+                        <div class="flex-1 overflow-y-auto" id="lobby-friends-list">
+                            <!-- Diisi JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Area 3: Laporan Siswa (Modal) -->
+            <div id="student-report-modal" class="hidden absolute inset-0 bg-slate-900/90 z-50 flex items-center justify-center backdrop-blur-sm">
+                 <div class="glass-panel p-8 rounded-2xl text-center max-w-sm w-full border-t-4 border-yellow-500">
+                    <i class="fas fa-trophy text-5xl text-yellow-500 mb-4"></i>
+                    <h2 class="font-rpg text-lg text-white mb-2">HASIL MISI</h2>
+                    <div class="text-4xl font-bold text-green-400 mb-4" id="student-final-score">100</div>
+                    <p class="text-sm text-slate-300 mb-6" id="student-final-msg">Sempurna! Pengetahuan Sheet-mu tak tertandingi.</p>
+                    <button onclick="backToDashboardStudent()" class="w-full btn-rpg-blue rounded-lg py-2 text-xs">KEMBALI KE LOBBY</button>
+                 </div>
+            </div>
+            
+            <!-- Area 4: Ubah Password Siswa (Modal) -->
+            <div id="student-settings-modal" class="hidden absolute inset-0 bg-slate-900/90 z-50 flex items-center justify-center backdrop-blur-sm">
+                 <div class="glass-panel p-6 rounded-2xl w-full max-w-sm border-t-4 border-slate-500">
+                    <h3 class="font-bold text-lg mb-4 text-white"><i class="fas fa-key mr-2"></i>Ubah Sandi Rahasia</h3>
+                    <input type="password" id="student-new-pass" class="w-full p-3 bg-slate-800 border border-slate-600 rounded-lg text-white mb-4" placeholder="Sandi baru...">
+                    <div class="flex gap-2">
+                        <button onclick="changePassword('student-new-pass')" class="flex-1 btn-rpg-green rounded-lg py-2 text-xs">Simpan</button>
+                        <button onclick="closeStudentSettings()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg py-2 text-xs">Batal</button>
+                    </div>
+                 </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="view-arena" class="hidden min-h-screen bg-[url('https://img.freepik.com/free-vector/dark-hexagonal-background-with-gradient-color_79603-1409.jpg')] bg-cover bg-center flex flex-col relative overflow-hidden">
+        <!-- Filter Gelap -->
+        <div class="absolute inset-0 bg-slate-900/70 z-0"></div>
+        
+        <!-- Battle HUD -->
+        <div class="z-10 w-full p-4 flex justify-between items-start gap-4">
+            <!-- Player Status -->
+            <div class="glass-panel p-3 rounded-lg w-1/3 max-w-[200px] border-l-4 border-blue-500">
+                <div class="flex justify-between items-end mb-1">
+                    <span class="font-bold text-xs" id="arena-player-name">Player</span>
+                    <span class="text-xl" id="arena-player-avatar">🧙‍♂️</span>
+                </div>
+                <div class="hp-bar-bg">
+                    <div class="hp-bar-fill shadow-[0_0_10px_#22c55e]" id="player-hp-fill" style="width: 100%;"></div>
+                    <div class="hp-text" id="player-hp-text">100/100</div>
+                </div>
+            </div>
+            
+            <!-- Monster Status -->
+            <div class="glass-panel p-3 rounded-lg w-1/3 max-w-[200px] border-r-4 border-red-500 text-right">
+                <div class="flex justify-between items-end mb-1 flex-row-reverse">
+                    <span class="font-bold text-xs text-red-400">Sheet Monster</span>
+                    <span class="text-xl" id="arena-monster-avatar">👺</span>
+                </div>
+                <div class="hp-bar-bg bg-red-900/30 border-red-900">
+                    <div class="hp-bar-fill bg-gradient-to-r from-red-800 to-red-500 shadow-[0_0_10px_#ef4444]" id="monster-hp-fill" style="width: 100%;"></div>
+                    <div class="hp-text" id="monster-hp-text">100/100</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Battle Sprites Area -->
+        <div class="z-10 flex-1 flex items-center justify-between px-10 md:px-32 relative min-h-[150px]">
+            <!-- Player Sprite -->
+            <div id="sprite-player" class="text-7xl md:text-9xl drop-shadow-[0_10px_20px_rgba(59,130,246,0.5)] transition-transform duration-300">🧙‍♂️</div>
+            
+            <!-- VS Text -->
+            <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-rpg text-red-500/30 text-6xl">VS</div>
+            
+            <!-- Monster Sprite -->
+            <div id="sprite-monster" class="text-7xl md:text-9xl drop-shadow-[0_10px_20px_rgba(239,68,68,0.5)] floating transition-transform duration-300">👺</div>
+        </div>
+
+        <!-- Question Box -->
+        <div class="z-10 p-4 pb-8 w-full max-w-4xl mx-auto">
+            <div class="glass-panel border-2 border-yellow-600/50 rounded-xl p-5 md:p-8 shadow-[0_0_30px_rgba(202,138,4,0.15)] relative">
+                <!-- Question Number/Type -->
+                <div class="absolute -top-4 left-6 bg-yellow-600 text-black font-rpg text-[10px] py-1 px-3 rounded shadow-lg border border-yellow-300">
+                    SOAL <span id="arena-q-num">1</span> / <span id="arena-q-total">10</span>
+                </div>
+                
+                <h3 id="arena-question-text" class="text-lg md:text-xl font-bold mb-6 text-white leading-relaxed">Pertanyaan akan muncul di sini...</h3>
+                
+                <!-- Dynamic Answer Area -->
+                <div id="arena-answer-area" class="w-full">
+                    <!-- Injected by JS based on question type -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cover Loading antar soal -->
+        <div id="arena-loading" class="hidden absolute inset-0 bg-black/80 z-50 flex items-center justify-center backdrop-blur-sm">
+            <div class="font-rpg text-yellow-400 text-xl animate-pulse text-center">
+                <i class="fas fa-khanda text-4xl mb-4 block"></i>
+                MEMPERSIAPKAN SERANGAN...
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // KONFIGURASI APLIKASI
+    // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER
+    // ==========================================
+    const IS_PREVIEW = true; 
+    const GAS_URL = "URL_DEPLOY_GAS_ANDA_DISINI";
+
+    // --- STATE MANAGEMENT ---
+    let currentUser = null; 
+    let selectedAvatar = '🧙‍♂️';
+    let currentGameCode = null;
+    let gameSessionInterval = null;
+    
+    // Battle State
+    let battleQuestions = [];
+    let currentQIndex = 0;
+    let maxHP = 100;
+    let playerHP = 100;
+    let monsterHP = 100;
+    let totalScore = 0;
+
+    // --- MOCK DATA UNTUK PREVIEW ---
+    let mockUsers = [
+        { username: 'admin', password: 'edudigital', role: 'admin', nama: 'Game Master' }, // Di prompt disebut edudigital utk preview
+        { username: 'peserta', password: 'edudigital', role: 'siswa', nama: 'Petualang Dummy' },
+        { username: 'budi', password: '123', role: 'siswa', nama: 'Budi Santoso' }
+    ];
+    let mockSessions = []; // { code: 'ABCDEF', qCount: 10, status: 'Lobby' }
+    let mockSessionPlayers = []; // { code, username, nama, avatar, status, hp, score }
+
+    const mockBankSoal = [
+        { id: 1, tipe: 'pg', tanya: 'Apa fungsi utama dari Google Sheets?', data: JSON.stringify(['Pengolah Kata', 'Pengolah Angka (Spreadsheet)', 'Pembuat Presentasi', 'Desain Grafis']), kunci: 'Pengolah Angka (Spreadsheet)' },
+        { id: 2, tipe: 'ketik', tanya: 'Tuliskan rumus untuk menjumlahkan nilai dari sel A1 sampai A5.', data: '', kunci: '=SUM(A1:A5)' },
+        { id: 3, tipe: 'jodohkan', tanya: 'Jodohkan Icon/Menu dengan fungsinya!', data: JSON.stringify({ 'SUM': 'Menjumlahkan', 'MAX': 'Nilai Tertinggi', 'AVERAGE': 'Nilai Rata-rata' }), kunci: '' }, // Kunci dicek di fungsi khusus
+        { id: 4, tipe: 'urut', tanya: 'Urutkan langkah membagikan (Share) file Google Sheet ke orang lain!', data: JSON.stringify(['Klik tombol Share/Bagikan', 'Masukkan email penerima', 'Pilih peran (Viewer/Editor)', 'Klik Kirim/Send']), kunci: '0,1,2,3' },
+        { id: 5, tipe: 'pg', tanya: 'Rumus =IF(A1>75, "Lulus", "Gagal") berarti?', data: JSON.stringify(['Jika A1 kurang dari 75 maka Lulus', 'Jika A1 lebih besar dari 75 maka Gagal', 'Jika A1 lebih besar dari 75 maka Lulus', 'Selalu Gagal']), kunci: 'Jika A1 lebih besar dari 75 maka Lulus' }
+    ];
+
+    function showView(viewId) {
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-admin').classList.add('hidden');
+        document.getElementById('view-student').classList.add('hidden');
+        document.getElementById('view-arena').classList.add('hidden');
+        document.getElementById(viewId).classList.remove('hidden');
+    }
+
+    function showToast(icon, title) {
+        Swal.fire({ toast: true, position: 'top-end', icon: icon, title: title, showConfirmButton: false, timer: 3000, timerProgressBar: true, background: '#1e293b', color: '#fff' });
+    }
+
+    // --- FUNGSI JEMBATAN KE BACKEND (GAS ATAU MOCK) ---
+    function runBackend(funcName, args = [], onSuccess) {
+        if (IS_PREVIEW) {
+            console.log(`[Mock Backend Call] ${funcName}`, args);
+            setTimeout(() => { mockBackendProcessor(funcName, args, onSuccess); }, 500); // Simulasi delay jaringan
+        } else {
+            Swal.showLoading();
+            google.script.run
+                .withSuccessHandler((res) => { Swal.close(); onSuccess(res); })
+                .withFailureHandler((err) => { Swal.close(); Swal.fire('Error', err.message, 'error'); })
+                [funcName](...args);
+        }
+    }
+
+    function mockBackendProcessor(funcName, args, cb) {
+        let res = null;
+        if (funcName === 'loginGAS') {
+            const [u, p] = args;
+            const user = mockUsers.find(x => x.username === u && x.password === p);
+            if(user) res = { success: true, role: user.role, nama: user.nama, username: u };
+            else res = { success: false, msg: 'Username / Password salah!' };
+        } 
+        else if (funcName === 'getStudents') {
+            res = mockUsers.filter(x => x.role === 'siswa');
+        }
+        else if (funcName === 'addStudentGAS') {
+            mockUsers.push({ username: args[0].username, password: args[0].password, role: 'siswa', nama: args[0].nama });
+            res = { success: true };
+        }
+        else if (funcName === 'deleteStudentGAS') {
+            mockUsers = mockUsers.filter(x => x.username !== args[0]);
+            res = { success: true };
+        }
+        else if (funcName === 'bulkAddStudentsGAS') {
+            const arr = JSON.parse(args[0]);
+            arr.forEach(a => mockUsers.push({ username: a.username, password: a.password, role: 'siswa', nama: a.nama }));
+            res = { success: true };
+        }
+        else if (funcName === 'changePassGAS') {
+            const idx = mockUsers.findIndex(x => x.username === currentUser.username);
+            if(idx > -1) { mockUsers[idx].password = args[0]; res = { success: true }; }
+        }
+        else if (funcName === 'generateGameGAS') {
+            const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+            mockSessions.push({ code: code, qCount: args[0], status: 'Lobby' });
+            res = { success: true, code: code };
+        }
+        else if (funcName === 'getLobbyDataGAS') {
+            const code = args[0];
+            const session = mockSessions.find(x => x.code === code);
+            const players = mockSessionPlayers.filter(x => x.code === code);
+            res = { status: session ? session.status : 'Not Found', players: players };
+        }
+        else if (funcName === 'startGameGAS') {
+            const s = mockSessions.find(x => x.code === args[0]);
+            if(s) { s.status = 'Playing'; res = { success: true }; }
+        }
+        else if (funcName === 'stopGameGAS') {
+            const s = mockSessions.find(x => x.code === args[0]);
+            if(s) { s.status = 'Finished'; res = { success: true }; }
+        }
+        else if (funcName === 'joinGameGAS') {
+            const code = args[0], un = args[1], nm = args[2], av = args[3];
+            const s = mockSessions.find(x => x.code === code);
+            if(!s) res = { success: false, msg: 'Kode tidak valid!' };
+            else if(s.status !== 'Lobby') res = { success: false, msg: 'Sesi sudah dimulai/selesai.' };
+            else {
+                if(!mockSessionPlayers.find(x => x.code === code && x.username === un)) {
+                    mockSessionPlayers.push({ code: code, username: un, nama: nm, avatar: av, status: 'Waiting', hp: 100, score: 0 });
+                } else {
+                    const p = mockSessionPlayers.find(x => x.code === code && x.username === un);
+                    p.avatar = av; // Update avatar jika join ulang
+                }
+                res = { success: true, qCount: s.qCount };
+            }
+        }
+        else if (funcName === 'getGameQuestionsGAS') {
+            // Ambil acak dari bank soal sesuai kuota
+            let limit = args[1];
+            let shuffled = [...mockBankSoal].sort(() => 0.5 - Math.random());
+            res = shuffled.slice(0, Math.min(limit, shuffled.length));
+        }
+        else if (funcName === 'submitScoreGAS') {
+            const code = args[0], un = args[1], hp = args[2], score = Math.round(args[3]);
+            const p = mockSessionPlayers.find(x => x.code === code && x.username === un);
+            if(p) { p.hp = hp; p.score = score; p.status = 'Done'; }
+            res = { success: true };
+        }
+        else if (funcName === 'getReportSessions') {
+            res = mockSessions.map(x => x.code);
+        }
+        else if (funcName === 'getReportDataGAS') {
+            res = mockSessionPlayers.filter(x => x.code === args[0]);
+        }
+        
+        if (cb) cb(res);
+    }
+
+    window.onload = function() {
+        if(IS_PREVIEW) document.getElementById('preview-badge').classList.remove('hidden');
+        showView('view-login');
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const u = document.getElementById('login-username').value.trim();
+        const p = document.getElementById('login-password').value.trim();
+        
+        const btn = document.getElementById('btn-login');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memuat...';
+        btn.disabled = true;
+
+        runBackend('loginGAS', [u, p], function(res) {
+            btn.innerHTML = '<i class="fas fa-sign-in-alt mr-2"></i> MASUK GAME';
+            btn.disabled = false;
+            
+            if (res.success) {
+                currentUser = res;
+                showToast('success', `Selamat datang, ${res.nama}!`);
+                if (res.role === 'admin') {
+                    showView('view-admin');
+                    adminNav('siswa');
+                } else {
+                    showView('view-student');
+                    document.getElementById('student-name-display').innerText = res.nama;
+                }
+            } else {
+                Swal.fire('Akses Ditolak', res.msg, 'error');
+            }
+        });
+    }
+
+    function doLogout() {
+        currentUser = null;
+        if(gameSessionInterval) clearInterval(gameSessionInterval);
+        document.getElementById('form-login').reset();
+        showView('view-login');
+    }
+
+    function changePassword(inputId) {
+        const val = document.getElementById(inputId).value;
+        if(val.length < 5) return showToast('warning', 'Password minimal 5 karakter');
+        
+        runBackend('changePassGAS', [val], (res) => {
+            if(res.success) {
+                showToast('success', 'Password berhasil diubah!');
+                document.getElementById(inputId).value = '';
+                if(inputId === 'student-new-pass') closeStudentSettings();
+            }
+        });
+    }
+
+    function adminNav(menu) {
+        document.querySelectorAll('.admin-panel').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.admin-nav').forEach(el => el.classList.remove('active-nav', 'bg-slate-700'));
+        
+        document.getElementById(`admin-${menu}`).classList.remove('hidden');
+        event.currentTarget.classList.add('active-nav', 'bg-slate-700');
+        
+        if (menu === 'siswa') loadAdminStudents();
+        if (menu === 'laporan') loadReportDropdown();
+    }
+
+    function loadAdminStudents() {
+        runBackend('getStudents', [], (data) => {
+            const tbody = document.getElementById('table-siswa-body');
+            tbody.innerHTML = '';
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-700/50 transition">
+                        <td class="p-4 font-mono text-yellow-400">${s.username}</td>
+                        <td class="p-4 font-semibold">${s.nama}</td>
+                        <td class="p-4 text-xs font-mono text-slate-500">${IS_PREVIEW ? '***' : s.password}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="deleteStudent('${s.username}')" class="text-red-400 hover:text-red-300 p-2"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
+            if(data.length === 0) tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-slate-500">Belum ada prajurit yang terdaftar.</td></tr>';
+        });
+    }
+
+    function showAddStudentModal() {
+        Swal.fire({
+            title: 'Tambah Petualang',
+            html: `
+                <input id="swal-un" class="swal2-input bg-slate-800 text-white border-slate-600" placeholder="Username">
+                <input id="swal-nm" class="swal2-input bg-slate-800 text-white border-slate-600" placeholder="Nama Lengkap">
+                <input id="swal-pw" class="swal2-input bg-slate-800 text-white border-slate-600" placeholder="Password" value="123456">
+            `,
+            background: '#1e293b', color: '#fff',
+            confirmButtonText: 'Daftarkan',
+            preConfirm: () => {
+                return {
+                    username: document.getElementById('swal-un').value,
+                    nama: document.getElementById('swal-nm').value,
+                    password: document.getElementById('swal-pw').value
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if(!result.value.username || !result.value.nama) return showToast('error', 'Semua kolom wajib diisi!');
+                runBackend('addStudentGAS', [result.value], (res) => {
+                    if(res.success) { showToast('success', 'Berhasil ditambahkan'); loadAdminStudents(); }
+                });
+            }
+        });
+    }
+
+    function deleteStudent(un) {
+        Swal.fire({
+            title: 'Hapus Prajurit?', text: "Data tidak bisa dikembalikan!", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#d33', background: '#1e293b', color: '#fff'
+        }).then((result) => {
+            if(result.isConfirmed) {
+                runBackend('deleteStudentGAS', [un], () => loadAdminStudents());
+            }
+        });
+    }
+
+    function downloadTemplate() {
+        const ws = XLSX.utils.json_to_sheet([{ Username: "siswa01", NamaLengkap: "Jaka Tarub", Password: "sandi" }]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "DataSiswa");
+        XLSX.writeFile(wb, "Template_Siswa_SheetQuest.xlsx");
+    }
+
+    function handleExcelUpload(e) {
+        const file = e.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+            const data = evt.target.result;
+            const workbook = XLSX.read(data, { type: 'binary' });
+            const sheetName = workbook.SheetNames[0];
+            const json = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+            
+            if(json.length === 0) return showToast('error', 'File Excel kosong!');
+            
+            const arr = json.map(row => ({
+                username: row.Username ? String(row.Username) : '',
+                nama: row.NamaLengkap || row.Nama || '',
+                password: row.Password ? String(row.Password) : '123456'
+            })).filter(x => x.username !== '');
+
+            if(arr.length === 0) return showToast('error', 'Format Excel salah. Gunakan Template!');
+
+            Swal.fire({ title: `Mengupload ${arr.length} Siswa...`, allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            runBackend('bulkAddStudentsGAS', [JSON.stringify(arr)], (res) => {
+                Swal.close();
+                if(res.success) { showToast('success', 'Bulk Insert Berhasil!'); loadAdminStudents(); }
+                e.target.value = null; // Reset input
+            });
+        };
+        reader.readAsBinaryString(file);
+    }
+
+    function generateGame() {
+        const qCount = parseInt(document.getElementById('input-jumlah-soal').value);
+        if(isNaN(qCount) || qCount < 10 || qCount > 40) {
+            return showToast('error', 'Jumlah soal harus antara 10 - 40');
+        }
+        
+        runBackend('generateGameGAS', [qCount], (res) => {
+            if(res.success) {
+                currentGameCode = res.code;
+                document.getElementById('no-session-msg').classList.add('hidden');
+                document.getElementById('active-session-content').classList.remove('hidden');
+                document.getElementById('display-game-code').innerText = res.code;
+                document.getElementById('btn-start-game').disabled = false;
+                startAdminLobbyMonitor();
+                showToast('success', 'Sesi Berhasil Dibuat!');
+            }
+        });
+    }
+
+    function startAdminLobbyMonitor() {
+        if(gameSessionInterval) clearInterval(gameSessionInterval);
+        gameSessionInterval = setInterval(() => {
+            if(!currentGameCode) return;
+            runBackend('getLobbyDataGAS', [currentGameCode], (res) => {
+                if(res.players) {
+                    document.getElementById('lobby-count').innerText = res.players.length;
+                    document.getElementById('lobby-list').innerHTML = res.players.map(p => 
+                        `<li class="text-white bg-slate-700/50 rounded px-2 py-1 flex justify-between">
+                            <span>${p.avatar} ${p.nama}</span>
+                            <span class="text-[10px] ${p.status === 'Waiting' ? 'text-yellow-400' : 'text-green-400'}">${p.status}</span>
+                        </li>`
+                    ).join('');
+                }
+            });
+        }, 3000);
+    }
+
+    function startGame() {
+        if(!currentGameCode) return;
+        runBackend('startGameGAS', [currentGameCode], (res) => {
+            if(res.success) {
+                document.getElementById('btn-start-game').disabled = true;
+                document.getElementById('btn-start-game').innerText = "SEDANG BERMAIN...";
+                showToast('success', 'Pertempuran Dimulai!');
+            }
+        });
+    }
+
+    function stopGame() {
+        if(!currentGameCode) return;
+        Swal.fire({ title: 'Hentikan Sesi?', icon: 'warning', showCancelButton: true, background: '#1e293b', color: '#fff' }).then(res => {
+            if(res.isConfirmed) {
+                runBackend('stopGameGAS', [currentGameCode], () => {
+                    clearInterval(gameSessionInterval);
+                    currentGameCode = null;
+                    document.getElementById('no-session-msg').classList.remove('hidden');
+                    document.getElementById('active-session-content').classList.add('hidden');
+                    showToast('info', 'Sesi dihentikan.');
+                });
+            }
+        });
+    }
+
+    function loadReportDropdown() {
+        runBackend('getReportSessions', [], (codes) => {
+            const sel = document.getElementById('select-report-session');
+            sel.innerHTML = '<option value="">Pilih sesi permainan...</option>';
+            codes.forEach(c => sel.innerHTML += `<option value="${c}">Sesi: ${c}</option>`);
+        });
+    }
+
+    function loadReport() {
+        const code = document.getElementById('select-report-session').value;
+        if(!code) return showToast('warning', 'Pilih sesi dulu!');
+        
+        runBackend('getReportDataGAS', [code], (data) => {
+            document.getElementById('report-content').classList.remove('hidden');
+            const tbody = document.getElementById('table-report-body');
+            tbody.innerHTML = '';
+            data.forEach(d => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-700/50">
+                        <td class="p-4 font-semibold">${d.avatar} ${d.nama}</td>
+                        <td class="p-4"><div class="w-full bg-slate-900 rounded h-4 overflow-hidden"><div class="bg-red-500 h-full" style="width:${d.hp}%"></div></div><div class="text-[10px] text-center">${d.hp}/100</div></td>
+                        <td class="p-4 text-xl font-bold text-green-400">${d.score}</td>
+                    </tr>
+                `;
+            });
+            if(data.length === 0) tbody.innerHTML = '<tr><td colspan="3" class="text-center p-4">Tidak ada data.</td></tr>';
+        });
+    }
+
+    function downloadReport() {
+        const code = document.getElementById('select-report-session').value;
+        if(!code) return;
+        runBackend('getReportDataGAS', [code], (data) => {
+            if(data.length === 0) return showToast('warning', 'Data kosong');
+            const wsData = data.map(d => ({ KodeGame: d.code, Username: d.username, Nama: d.nama, SisaHP: d.hp, SkorAkhir: d.score, Status: d.status }));
+            const ws = XLSX.utils.json_to_sheet(wsData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Hasil");
+            XLSX.writeFile(wb, `Laporan_SheetQuest_${code}.xlsx`);
+        });
+    }
+
+    function showStudentSettings() { document.getElementById('student-settings-modal').classList.remove('hidden'); }
+    function closeStudentSettings() { document.getElementById('student-settings-modal').classList.add('hidden'); }
+    function selectAvatar(icon) {
+        selectedAvatar = icon;
+        document.querySelectorAll('.avatar-btn').forEach(el => { el.classList.remove('ring-2', 'ring-blue-500'); });
+        event.currentTarget.classList.add('ring-2', 'ring-blue-500');
+        // Auto update ke DB jika sudah di lobby
+        if(currentGameCode) joinGame(true); 
+    }
+
+    function joinGame(isSilentUpdate = false) {
+        const code = document.getElementById('input-game-code').value.toUpperCase();
+        if(code.length !== 6 && !isSilentUpdate) return showToast('warning', 'Kode harus 6 karakter!');
+        if(code) currentGameCode = code;
+
+        runBackend('joinGameGAS', [currentGameCode, currentUser.username, currentUser.nama, selectedAvatar], (res) => {
+            if(res.success) {
+                if(!isSilentUpdate) {
+                    document.getElementById('student-input-code').classList.add('hidden');
+                    document.getElementById('student-lobby').classList.remove('hidden');
+                    startStudentLobbyMonitor(res.qCount);
+                }
+            } else {
+                if(!isSilentUpdate) Swal.fire('Gagal Masuk', res.msg, 'error');
+            }
+        });
+    }
+
+    function startStudentLobbyMonitor(qCount) {
+        if(gameSessionInterval) clearInterval(gameSessionInterval);
+        gameSessionInterval = setInterval(() => {
+            runBackend('getLobbyDataGAS', [currentGameCode], (res) => {
+                if(res.players) {
+                    document.getElementById('lobby-friends-list').innerHTML = res.players.map(p => 
+                        `<div class="flex items-center gap-2 mb-2 bg-slate-900/50 p-2 rounded">
+                            <span class="text-xl">${p.avatar}</span>
+                            <span class="text-sm font-semibold">${p.nama} ${p.username === currentUser.username ? '<span class="text-blue-400 text-xs">(Kamu)</span>' : ''}</span>
+                        </div>`
+                    ).join('');
+                }
+                
+                if(res.status === 'Playing') {
+                    clearInterval(gameSessionInterval);
+                    prepareBattle(qCount);
+                } else if (res.status === 'Finished') {
+                    clearInterval(gameSessionInterval);
+                    Swal.fire('Game Over', 'Game Master telah menghentikan permainan.', 'info');
+                    backToDashboardStudent();
+                }
+            });
+        }, 2000);
+    }
+
+    function backToDashboardStudent() {
+        currentGameCode = null;
+        document.getElementById('student-report-modal').classList.add('hidden');
+        document.getElementById('student-lobby').classList.add('hidden');
+        document.getElementById('student-input-code').classList.remove('hidden');
+        document.getElementById('input-game-code').value = '';
+        showView('view-student');
+    }
+
+    function prepareBattle(qCount) {
+        showView('view-arena');
+        document.getElementById('arena-player-avatar').innerText = selectedAvatar;
+        document.getElementById('sprite-player').innerText = selectedAvatar;
+        document.getElementById('arena-player-name').innerText = currentUser.nama;
+        playerHP = 100; monsterHP = 100; totalScore = 0; currentQIndex = 0;
+        updateHPUI();
+        
+        runBackend('getGameQuestionsGAS', [currentGameCode, qCount], (questions) => {
+            battleQuestions = questions;
+            document.getElementById('arena-q-total').innerText = battleQuestions.length;
+            renderQuestion();
+        });
+    }
+
+    function renderQuestion() {
+        if(currentQIndex >= battleQuestions.length) { finishBattle(); return; }
+        
+        const q = battleQuestions[currentQIndex];
+        document.getElementById('arena-q-num').innerText = currentQIndex + 1;
+        document.getElementById('arena-question-text').innerText = q.tanya;
+        
+        const ansArea = document.getElementById('arena-answer-area');
+        ansArea.innerHTML = '';
+        
+        // Jenis: Pilihan Ganda (pg)
+        if(q.tipe === 'pg') {
+            const opts = JSON.parse(q.data);
+            opts.forEach((o, i) => {
+                ansArea.innerHTML += `
+                    <label class="block bg-slate-800 hover:bg-blue-900/50 border border-slate-600 rounded-lg p-4 mb-3 cursor-pointer transition flex items-center gap-3">
+                        <input type="radio" name="ans-pg" value="${i}" class="w-5 h-5 text-blue-600 focus:ring-blue-500 bg-slate-700 border-slate-500">
+                        <span class="text-md">${o}</span>
+                    </label>
+                `;
+            });
+            ansArea.innerHTML += `<button onclick="checkAnswer('pg')" class="w-full btn-rpg mt-4 py-3 rounded-lg">SERANG!</button>`;
+        }
+        // Jenis: Ketik Rumus (ketik)
+        else if (q.tipe === 'ketik') {
+            ansArea.innerHTML = `
+                <input type="text" id="ans-ketik" class="w-full p-4 bg-slate-800 text-green-400 font-mono text-lg border-2 border-slate-500 rounded-lg focus:border-green-400 outline-none mb-4" placeholder="Ketik rumus di sini (misal: =SUM...)">
+                <button onclick="checkAnswer('ketik')" class="w-full btn-rpg mt-2 py-3 rounded-lg">Keluarkan Jurus!</button>
+            `;
+        }
+        // Jenis: Jodohkan (jodohkan)
+        else if (q.tipe === 'jodohkan') {
+            const pairs = JSON.parse(q.data);
+            const keys = Object.keys(pairs);
+            const values = Object.values(pairs).sort(() => 0.5 - Math.random()); // Acak value
+            
+            let html = '<div class="grid grid-cols-1 gap-4 mb-4">';
+            keys.forEach((k, idx) => {
+                html += `
+                <div class="flex items-center gap-2">
+                    <div class="bg-slate-700 p-3 rounded font-bold w-1/3 text-center border border-slate-500 shadow-inner">${k}</div>
+                    <i class="fas fa-arrow-right text-slate-500"></i>
+                    <select id="match-${idx}" data-key="${k}" class="flex-1 bg-slate-800 p-3 rounded border border-slate-500 text-white outline-none">
+                        <option value="">-- Pilih Pasangan --</option>
+                        ${values.map(v => `<option value="${v}">${v}</option>`).join('')}
+                    </select>
+                </div>`;
+            });
+            html += '</div><button onclick="checkAnswer(\'jodohkan\')" class="w-full btn-rpg mt-2 py-3 rounded-lg">Kunci Target!</button>';
+            ansArea.innerHTML = html;
+        }
+        // Jenis: Mengurutkan (urut)
+        else if (q.tipe === 'urut') {
+            const items = JSON.parse(q.data);
+            // Simpan indeks asli di select
+            let html = '<p class="text-sm text-yellow-400 mb-2 mb-4"><i class="fas fa-info-circle"></i> Pilih langkah ke-1 sampai terakhir dengan benar.</p>';
+            items.forEach((item, idx) => {
+                html += `
+                <div class="flex items-center gap-3 mb-2 bg-slate-800 p-2 rounded border border-slate-600">
+                    <select class="ans-urut-select bg-slate-700 text-white p-2 rounded outline-none border border-slate-500">
+                        <option value="">-</option>
+                        ${items.map((_, i) => `<option value="${i}">${i+1}</option>`).join('')}
+                    </select>
+                    <span class="text-sm">${item}</span>
+                </div>`;
+            });
+            html += '<button onclick="checkAnswer(\'urut\')" class="w-full btn-rpg mt-4 py-3 rounded-lg">Rapihkan Mantra!</button>';
+            ansArea.innerHTML = html;
+        }
+    }
+
+    function checkAnswer(tipe) {
+        const q = battleQuestions[currentQIndex];
+        let isCorrect = false;
+
+        if(tipe === 'pg') {
+            const sel = document.querySelector('input[name="ans-pg"]:checked');
+            if(!sel) return showToast('warning', 'Pilih salah satu jawaban!');
+            const opts = JSON.parse(q.data);
+            isCorrect = opts[sel.value] === q.kunci;
+        } 
+        else if (tipe === 'ketik') {
+            const val = document.getElementById('ans-ketik').value.trim().toUpperCase();
+            if(!val) return showToast('warning', 'Ketik rumusnya!');
+            isCorrect = val.replace(/\s+/g,'') === q.kunci.toUpperCase().replace(/\s+/g,'');
+        }
+        else if (tipe === 'jodohkan') {
+            const pairs = JSON.parse(q.data);
+            let allMatch = true;
+            let answeredAll = true;
+            Object.keys(pairs).forEach((k, idx) => {
+                const el = document.getElementById(`match-${idx}`);
+                if(!el.value) answeredAll = false;
+                if(el.value !== pairs[k]) allMatch = false;
+            });
+            if(!answeredAll) return showToast('warning', 'Jodohkan semuanya!');
+            isCorrect = allMatch;
+        }
+        else if (tipe === 'urut') {
+            const selects = document.querySelectorAll('.ans-urut-select');
+            let answeredAll = true;
+            let userOrder = [];
+            selects.forEach(s => {
+                if(s.value === '') answeredAll = false;
+                userOrder.push(s.value);
+            });
+            if(!answeredAll) return showToast('warning', 'Pilih urutan untuk semua langkah!');
+            // pastikan tidak ada duplikat urutan
+            if(new Set(userOrder).size !== userOrder.length) return showToast('error', 'Urutan tidak boleh ada yang sama!');
+            isCorrect = userOrder.join(',') === q.kunci;
+        }
+
+        processBattleResult(isCorrect);
+    }
+
+    function processBattleResult(isCorrect) {
+        const damageAmount = Math.floor(100 / battleQuestions.length);
+        const playerSprite = document.getElementById('sprite-player');
+        const monsterSprite = document.getElementById('sprite-monster');
+
+        if(isCorrect) {
+            // Player Attack -> Monster Hurt
+            playerSprite.classList.add('anim-attack-right');
+            setTimeout(() => {
+                monsterSprite.classList.add('anim-hurt');
+                monsterHP -= damageAmount;
+                if(monsterHP < 0) monsterHP = 0;
+                totalScore += damageAmount;
+                updateHPUI();
+                showToast('success', 'Serangan Berhasil! (Jawaban Benar)');
+            }, 200);
+        } else {
+            // Monster Attack -> Player Hurt
+            monsterSprite.classList.add('anim-attack-left');
+            setTimeout(() => {
+                playerSprite.classList.add('anim-hurt');
+                playerHP -= damageAmount;
+                if(playerHP < 0) playerHP = 0;
+                updateHPUI();
+                showToast('error', 'Terkena Serangan! (Jawaban Salah)');
+            }, 200);
+        }
+
+        // Cleanup animations
+        setTimeout(() => {
+            playerSprite.classList.remove('anim-attack-right', 'anim-hurt');
+            monsterSprite.classList.remove('anim-attack-left', 'anim-hurt');
+            
+            // Lanjut soal / selesai
+            currentQIndex++;
+            document.getElementById('arena-loading').classList.remove('hidden');
+            setTimeout(() => {
+                document.getElementById('arena-loading').classList.add('hidden');
+                renderQuestion();
+            }, 1000);
+            
+        }, 1200);
+    }
+
+    function updateHPUI() {
+        document.getElementById('player-hp-fill').style.width = playerHP + '%';
+        document.getElementById('player-hp-text').innerText = `${playerHP}/${maxHP}`;
+        document.getElementById('monster-hp-fill').style.width = monsterHP + '%';
+        document.getElementById('monster-hp-text').innerText = `${monsterHP}/${maxHP}`;
+    }
+
+    function finishBattle() {
+        // Submit final score
+        // Skala score maks 100 meskipun pembagian tidak bulat
+        const finalScore = (totalScore / (Math.floor(100 / battleQuestions.length) * battleQuestions.length)) * 100;
+        
+        runBackend('submitScoreGAS', [currentGameCode, currentUser.username, playerHP, finalScore], () => {
+            document.getElementById('student-final-score').innerText = Math.round(finalScore);
+            document.getElementById('student-final-msg').innerText = playerHP > 50 ? 'Pahlawan Hebat! Monster kalah telak.' : (playerHP > 0 ? 'Pertarungan sengit! Kamu berhasil bertahan.' : 'Kamu kehabisan HP, tapi tetap mendapat poin.');
+            
+            showView('view-student');
+            document.getElementById('student-input-code').classList.add('hidden');
+            document.getElementById('student-lobby').classList.add('hidden');
+            document.getElementById('student-report-modal').classList.remove('hidden');
+        });
+    }
+
+</script>
+</body>
+</html>
