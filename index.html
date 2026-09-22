@@ -3,677 +3,893 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SheetQuest - Petualangan Belajar Google Sheets</title>
-    
+    <title>SHEET ADVENTURE - Google Sheets Battle</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #e0f2fe; color: #1e3a8a; margin: 0; padding: 0; overflow-x: hidden; }
-
-        /* Animasi Battle Keren & Dramatis */
-        @keyframes attackHero {
-            0% { transform: translateX(0) scale(1) rotate(0deg); }
-            25% { transform: translateX(-40px) scale(0.9) rotate(-15deg); }
-            60% { transform: translateX(220px) scale(1.4) rotate(20deg); filter: drop-shadow(0 0 35px #3b82f6); }
-            100% { transform: translateX(0) scale(1) rotate(0deg); }
+        :root {
+            --rpg-bg: #1a1a2e;
+            --rpg-panel: #16213e;
+            --rpg-accent: #0f3460;
+            --rpg-highlight: #e94560;
         }
-        @keyframes attackMonster {
-            0% { transform: translateX(0) scale(1) rotate(0deg); }
-            25% { transform: translateX(40px) scale(0.9) rotate(15deg); }
-            60% { transform: translateX(-220px) scale(1.4) rotate(-20deg); filter: drop-shadow(0 0 35px #ef4444); }
-            100% { transform: translateX(0) scale(1) rotate(0deg); }
-        }
-        @keyframes violentDamage {
-            0% { transform: translate(0, 0) scale(1); filter: brightness(1); }
-            15% { transform: translate(-30px, 20px) scale(1.15); filter: brightness(2.5) sepia(1) hue-rotate(-50deg) saturate(10); }
-            30% { transform: translate(30px, -20px) scale(0.85); filter: brightness(0.2); }
-            45% { transform: translate(-25px, -15px) scale(1.1); }
-            60% { transform: translate(25px, 15px); }
-            75% { transform: translate(-10px, 5px); }
-            100% { transform: translate(0, 0) scale(1); filter: brightness(1); }
-        }
-        @keyframes arenaShake {
-            0%, 100% { transform: translate(0, 0); }
-            10%, 30%, 50%, 70%, 90% { transform: translate(-12px, 8px); }
-            20%, 40%, 60%, 80% { transform: translate(12px, -8px); }
-        }
-        @keyframes critPop {
-            0% { transform: translate(-50%, -50%) scale(0.2) rotate(-25deg); opacity: 0; }
-            50% { transform: translate(-50%, -50%) scale(1.8) rotate(8deg); opacity: 1; }
-            70% { transform: translate(-50%, -50%) scale(1.3) rotate(-5deg); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0; }
-        }
-        @keyframes walkRight { 0% { transform: translateX(0) translateY(0); } 25% { transform: translateX(100px) translateY(-20px); } 50% { transform: translateX(200px) translateY(0); } 75% { transform: translateX(300px) translateY(-20px); } 100% { transform: translateX(450px) translateY(0); opacity: 0; } }
-        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
-        @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
-
-        .anim-attack-hero { animation: attackHero 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 40; }
-        .anim-attack-monster { animation: attackMonster 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 40; }
-        .anim-damage { animation: violentDamage 0.65s ease-in-out forwards; }
-        .anim-shake-arena { animation: arenaShake 0.45s ease-in-out; }
-        .anim-crit-pop { animation: critPop 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        .anim-walk { animation: walkRight 1.5s linear forwards; }
-        .anim-float { animation: float 3s ease-in-out infinite; }
-        .anim-pulse { animation: pulse-glow 2s infinite; }
-
-        .hp-bar-container { width: 100%; background-color: #cbd5e1; border-radius: 999px; height: 1.5rem; overflow: hidden; border: 3px solid #1e293b; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
-        .hp-bar-fill { height: 100%; transition: width 0.4s ease-out, background 0.4s; }
-        .hp-green { background-color: #22c55e; } .hp-yellow { background-color: #eab308; } .hp-red { background-color: #ef4444; }
+        body { font-family: 'Nunito', sans-serif; background-color: var(--rpg-bg); color: white; overflow-x: hidden; }
+        .font-retro { font-family: 'Press Start 2P', cursive; }
+        .rpg-panel { background-color: var(--rpg-panel); border: 4px solid var(--rpg-accent); border-radius: 12px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3); }
+        .rpg-button { background-color: var(--rpg-highlight); color: white; border-bottom: 4px solid #b32a45; transition: all 0.1s; text-transform: uppercase; font-weight: bold; }
+        .rpg-button:active { transform: translateY(4px); border-bottom: 0px solid #b32a45; }
+        .rpg-button-alt { background-color: #4a5568; border-bottom: 4px solid #2d3748; }
+        .rpg-button-alt:active { transform: translateY(4px); border-bottom: 0px; }
         
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #bae6fd; } ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 4px; }
-
-        .text-gradient { background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-image: linear-gradient(to right, #2563eb, #9333ea); }
-        .card-glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 1.5rem; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
-        .glass-dark { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
-
-        #question-panel { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease; transform: translateY(150%); opacity: 0; pointer-events: none; }
-        #question-panel.show-q { transform: translateY(0); opacity: 1; pointer-events: auto; }
+        /* Animations */
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } 100% { transform: translateX(0); } }
+        .animate-shake { animation: shake 0.4s; }
+        @keyframes flashRed { 0% { background-color: red; } 100% { background-color: transparent; } }
+        .flash-red { animation: flashRed 0.5s; }
+        @keyframes flashGreen { 0% { background-color: #4ade80; } 100% { background-color: transparent; } }
+        .flash-green { animation: flashGreen 0.5s; }
         
-        .bg-tavern { background-color: #0f172a; background-image: radial-gradient(circle at center, #1e3a8a 0%, #0f172a 100%); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--rpg-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--rpg-accent); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--rpg-highlight); }
+        
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; min-height: 100vh; }
+        
+        .avatar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); gap: 10px; }
+        .avatar-card { font-size: 2rem; background: var(--rpg-panel); border: 2px solid var(--rpg-accent); border-radius: 8px; text-align: center; cursor: pointer; transition: transform 0.2s; }
+        .avatar-card:hover:not(.taken) { transform: scale(1.1); border-color: var(--rpg-highlight); }
+        .avatar-card.taken { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
+        .avatar-card.selected { border-color: #4ade80; background: rgba(74, 222, 128, 0.2); }
+
+        .hp-heart { font-size: 1.5rem; color: #ff4757; }
+        .hp-heart.empty { color: #576574; }
     </style>
 </head>
-<body class="bg-blue-50">
+<body>
 
-    <div id="app-container" class="min-h-screen w-full flex flex-col relative transition-all duration-300">
+    <!-- KONFIGURASI APLIKASI -->
+    <script>
+        // UBAH IS_PREVIEW KE false JIKA AKAN DI-HUBUNGKAN KE GAS
+        const IS_PREVIEW = false; 
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbzpj7WeEzPt5RhFxksXb2ShFNgf0j7TPVdgXR18I42TPdEJTaIdWGGQ0btsO9ZW6v4U/exec";
         
-        <!-- VIEW: LOGIN -->
-        <div id="view-login" class="flex-1 flex items-center justify-center p-4 z-10 w-full min-h-screen">
-            <div class="card-glass p-8 max-w-md w-full text-center relative overflow-hidden">
-                <img src="https://placehold.co/200x200/2563eb/ffffff?text=Sheet+Quest" alt="Logo" class="w-40 h-auto mx-auto mb-6 anim-float drop-shadow-2xl rounded-full">
-                <h1 class="text-4xl font-extrabold text-gradient mb-2">SheetQuest</h1>
-                <p class="text-blue-600 mb-8 font-medium">Petualangan Belajar Spreadsheet!</p>
-                <form id="form-login" onsubmit="app.handleLogin(event)" class="space-y-5 relative z-10">
-                    <input type="text" id="login-username" required placeholder="Username / ID" class="w-full text-center py-3 bg-white border-2 border-blue-100 rounded-xl focus:outline-none focus:border-blue-500 font-semibold">
-                    <input type="password" id="login-password" required placeholder="Kata Sandi" class="w-full text-center py-3 bg-white border-2 border-blue-100 rounded-xl focus:outline-none focus:border-blue-500 font-semibold">
-                    <button type="submit" id="btn-login" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transform hover:-translate-y-1 transition-all anim-pulse">MULAI PETUALANGAN</button>
-                </form>
-            </div>
+        // State Management
+        let appState = {
+            user: null, // role: 'admin' | 'student'
+            currentGameCode: null,
+            players: [],
+            questions: [],
+            currentQIndex: 0,
+            hp: 5,
+            score: 0,
+            correctCount: 0,
+            wrongCount: 0,
+            avatarId: null,
+            pollingInterval: null
+        };
+
+        const AVATARS = [
+            "🧑","👱‍♂️","👨‍🦰","👨‍🦱","👩","👱‍♀️","👩‍🦰","👩‍🦱",
+            "🧙‍♂️","🧙‍♀️","🥷","🦸‍♂️","🦸‍♀️","🧛‍♂️","🧛‍♀️","🧟‍♂️",
+            "🤖","👾","👽","👻","🕵️‍♂️","🕵️‍♀️","👨‍🚀","👩‍🚀",
+            "👨‍🔬","👩‍🔬","👨‍💻","👩‍💻","🤴","👸","🧝‍♂️","🧝‍♀️"
+        ];
+    </script>
+
+    <!-- SPLASH & LOGIN SCREEN -->
+    <div id="screen-login" class="screen active justify-center items-center p-4">
+        <div class="text-center mb-8">
+            <h1 class="font-retro text-3xl md:text-5xl text-yellow-400 mb-4 animate-float text-shadow">SHEET ADVENTURE</h1>
+            <p class="text-xl text-gray-300">Google Sheets Battle RPG</p>
         </div>
-
-        <!-- VIEW: ADMIN DASHBOARD -->
-        <div id="view-admin" class="hidden min-h-screen w-full flex flex-col bg-gray-50">
-            <nav class="bg-blue-800 text-white shadow-lg z-20">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between h-16 items-center">
-                    <div class="font-bold text-xl"><i class="fas fa-crown text-yellow-400 mr-2"></i>TOWER MASTER</div>
-                    <div class="space-x-4">
-                        <button onclick="app.switchAdminMenu('data-siswa')" class="hover:text-blue-300"><i class="fas fa-users"></i> Siswa</button>
-                        <button onclick="app.switchAdminMenu('permainan')" class="hover:text-blue-300"><i class="fas fa-gamepad"></i> Game</button>
-                        <button onclick="app.switchAdminMenu('laporan')" class="hover:text-blue-300"><i class="fas fa-chart-bar"></i> Laporan</button>
-                        <button onclick="app.logout()" class="text-red-400 hover:text-red-500"><i class="fas fa-sign-out-alt"></i></button>
-                    </div>
-                </div>
-            </nav>
-
-            <div class="flex-1 p-8 max-w-7xl mx-auto w-full">
-                <!-- Data Siswa -->
-                <div id="admin-data-siswa" class="admin-panel bg-white p-6 rounded-2xl shadow-xl">
-                    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h2 class="text-2xl font-bold text-blue-900">Manajemen Siswa</h2>
-                        <div class="flex gap-2 flex-wrap">
-                            <button onclick="app.downloadTemplate()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition"><i class="fas fa-file-excel mr-1"></i> Template</button>
-                            <input type="file" id="upload-excel" accept=".xlsx, .xls" class="hidden" onchange="app.handleFileUpload(event)">
-                            <button onclick="document.getElementById('upload-excel').click()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 transition"><i class="fas fa-upload mr-1"></i> Upload</button>
-                            <button onclick="app.showAddStudentModal()" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-purple-700 transition"><i class="fas fa-plus mr-1"></i> Tambah</button>
-                        </div>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 border text-sm md:text-base">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase">Username</th>
-                                    <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase">Nama Lengkap</th>
-                                    <th class="px-6 py-3 text-left font-bold text-gray-500 uppercase">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-siswa-body" class="bg-white divide-y divide-gray-200"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Permainan & Liveboard -->
-                <div id="admin-permainan" class="admin-panel hidden space-y-6">
-                    <div class="bg-white p-6 rounded-2xl shadow-xl">
-                        <div id="game-setup-ui" class="flex gap-4 items-end">
-                            <div class="flex-1">
-                                <label class="block mb-1 font-bold">Jumlah Soal</label>
-                                <select id="jumlah-soal" class="w-full border-2 p-3 rounded-lg">
-                                    <option value="5">5 Soal</option>
-                                    <option value="10" selected>10 Soal</option>
-                                    <option value="20">20 Soal</option>
-                                    <option value="30">30 Soal</option>
-                                </select>
-                            </div>
-                            <button onclick="app.generateGame()" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg">Buat Game</button>
-                        </div>
-
-                        <div id="active-game-panel" class="hidden mt-6 text-center">
-                            <div class="text-6xl font-black text-blue-700 tracking-widest mb-4 drop-shadow-sm" id="display-kode-game">MEMUAT...</div>
-                            <div id="lobby-wait-ui">
-                                <p class="font-bold text-lg mb-2">Pahlawan Berkumpul: <span id="count-waiting">0</span></p>
-                                <div id="list-waiting-players" class="flex flex-wrap justify-center gap-2 mb-4 h-32 overflow-y-auto"></div>
-                                <button onclick="app.startGameAdmin()" id="btn-start-game" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg" disabled>MULAI PERTARUNGAN</button>
-                            </div>
-
-                            <div id="liveboard-ui" class="hidden mt-6 text-left">
-                                <div class="flex justify-between items-center mb-6 border-b-2 pb-4 border-gray-200">
-                                    <h3 class="text-2xl font-bold text-red-600"><i class="fas fa-broadcast-tower mr-2 anim-pulse"></i>Live Arena Ranking</h3>
-                                    <button onclick="app.stopGameAdmin()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow"><i class="fas fa-stop mr-2"></i>Hentikan Game</button>
-                                </div>
-                                <div id="liveboard-container" class="relative w-full transition-all duration-500 min-h-[300px]"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Laporan -->
-                <div id="admin-laporan" class="admin-panel hidden bg-white p-6 rounded-2xl shadow-xl">
-                    <h2 class="text-2xl font-bold text-blue-900 mb-6">Laporan</h2>
-                    <table class="min-w-full divide-y divide-gray-200 border"><tbody id="table-laporan-body"></tbody></table>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW: SISWA LOBI -->
-        <div id="view-siswa" class="hidden min-h-screen w-full flex flex-col justify-center items-center p-4">
-            <div class="card-glass p-8 max-w-md w-full text-center">
-                <h2 class="text-2xl font-bold mb-4">Halo, <span id="hero-name-display" class="text-purple-600">Pahlawan</span>!</h2>
-                <form onsubmit="app.joinQuest(event)">
-                    <input type="text" id="input-kode-quest" required placeholder="KODE (Contoh: ANDHI1234)" class="w-full text-center text-2xl font-black py-4 border-2 rounded-xl mb-4 uppercase">
-                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg">MASUK LOBI</button>
-                </form>
-                <button onclick="app.logout()" class="mt-4 text-red-500 font-bold underline">Keluar</button>
-            </div>
-        </div>
-
-        <!-- VIEW: TAVERN -->
-        <div id="view-tavern" class="hidden min-h-screen w-full bg-tavern text-white p-4 relative overflow-hidden flex flex-col">
-            <div class="absolute top-10 left-10 w-48 h-48 bg-blue-500 rounded-full mix-blend-screen filter blur-[80px] opacity-40 anim-pulse"></div>
-            <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-[90px] opacity-40 anim-pulse" style="animation-delay: 1s;"></div>
-            
-            <h2 class="text-3xl md:text-5xl font-black text-center text-yellow-400 mt-4 mb-8 drop-shadow-lg z-10 tracking-widest"><i class="fas fa-dungeon mr-3"></i>TAVERN PERSIAPAN</h2>
-            
-            <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 w-full z-10 flex-1">
-                <div class="glass-dark p-6 rounded-3xl border border-blue-400 border-opacity-30 flex flex-col">
-                    <h3 class="text-2xl font-bold mb-4 text-center text-blue-200 border-b border-blue-500/30 pb-2">Pilih Karaktermu</h3>
-                    <div class="grid grid-cols-4 sm:grid-cols-6 gap-3 overflow-y-auto pr-2 flex-1 min-h-[250px]" id="avatar-selection"></div>
-                    <div class="mt-4 text-center font-bold text-lg bg-black/30 p-3 rounded-xl">Terpilih: <span id="selected-avatar-display" class="text-5xl ml-2 anim-float inline-block">🧙‍♂️</span></div>
-                </div>
-                <div class="glass-dark p-6 rounded-3xl flex flex-col border border-purple-400 border-opacity-30">
-                    <h3 class="text-2xl font-bold mb-4 text-purple-200 border-b border-purple-500/30 pb-2">Pahlawan Terkumpul (<span id="tavern-count">0</span>)</h3>
-                    <div id="tavern-player-list" class="flex-1 overflow-y-auto space-y-3 pr-2 min-h-[250px]"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW: BATTLE ARENA -->
-        <div id="view-battle" class="hidden min-h-screen w-full bg-gray-900 text-white relative overflow-hidden flex flex-col transition-all duration-200">
-            <div class="flex justify-between items-center bg-gray-800 bg-opacity-80 backdrop-blur-sm p-4 z-20 border-b-2 border-gray-600">
-                <div class="text-center w-1/3">
-                    <h3 id="battle-hero-name" class="text-blue-400 font-bold text-lg mb-1 drop-shadow">Hero</h3>
-                    <div class="hp-bar-container"><div id="hero-hp-fill" class="hp-bar-fill hp-green" style="width: 100%;"></div></div>
-                </div>
-                <div class="text-center w-1/3">
-                    <div class="text-sm bg-gray-700 px-4 py-2 border border-gray-500 rounded-full inline-block font-black tracking-widest shadow-inner">Lantai <span id="current-q-num">1</span>/<span id="total-q-num">10</span></div>
-                </div>
-                <div class="text-center w-1/3">
-                    <h3 id="battle-monster-name" class="text-red-400 font-bold text-lg mb-1 drop-shadow">Monster Data</h3>
-                    <div class="hp-bar-container"><div id="monster-hp-fill" class="hp-bar-fill hp-red" style="width: 100%;"></div></div>
-                </div>
+        
+        <div class="rpg-panel p-8 w-full max-w-md">
+            <div id="login-selection" class="flex flex-col gap-4">
+                <button onclick="ui_showLoginForm('student')" class="rpg-button py-3 px-6 rounded-lg text-lg flex items-center justify-center gap-2">
+                    <span>⚔️</span> LOGIN SISWA (PLAY)
+                </button>
+                <button onclick="ui_showLoginForm('admin')" class="rpg-button-alt py-3 px-6 rounded-lg text-lg flex items-center justify-center gap-2">
+                    <span>🛡️</span> LOGIN GURU (ADMIN)
+                </button>
             </div>
 
-            <div class="flex-1 flex items-center justify-between px-8 md:px-32 relative transition-all duration-700 z-10" id="battle-scene">
-                <div id="hero-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_35px_rgba(59,130,246,0.9)] z-10 transition-all transform origin-bottom">🧙‍♂️</div>
+            <div id="login-form" class="hidden flex-col gap-4 mt-4">
+                <h2 id="login-title" class="text-center font-bold text-xl mb-2 text-yellow-400">LOGIN</h2>
+                <input type="text" id="login-user" placeholder="Username / NIS" class="p-3 rounded bg-gray-800 border border-gray-600 text-white w-full outline-none focus:border-yellow-400">
+                <input type="password" id="login-pass" placeholder="Password" class="p-3 rounded bg-gray-800 border border-gray-600 text-white w-full outline-none focus:border-yellow-400">
+                <button onclick="doLogin()" class="rpg-button py-2 px-4 rounded w-full mt-2" id="btn-do-login">MASUK</button>
+                <button onclick="ui_backToLoginSelection()" class="text-sm text-gray-400 mt-2 hover:text-white underline text-center">Kembali</button>
                 
-                <!-- VFX Pop Text -->
-                <div id="battle-effect" class="text-6xl hidden font-black absolute top-1/2 left-1/2 z-50 pointer-events-none">CRITICAL!</div>
-                
-                <div id="monster-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_35px_rgba(239,68,68,0.9)] z-10 anim-float transform origin-bottom">👾</div>
-            </div>
-
-            <div id="question-panel" class="absolute bottom-0 left-0 w-full p-4 md:p-8 z-30 flex justify-center">
-                <div class="bg-white text-gray-900 rounded-3xl p-6 shadow-2xl relative border-4 border-blue-500 w-full max-w-4xl">
-                    <div class="absolute -top-5 left-8 bg-blue-600 text-white text-sm font-black px-6 py-1 rounded-full shadow-lg border-2 border-white tracking-wide" id="q-category">Kategori</div>
-                    <h2 id="q-text" class="text-xl md:text-2xl font-bold mb-6 mt-3 leading-snug">Memuat...</h2>
-                    <div id="q-interactive-area" class="w-full"></div>
+                <div id="preview-hint" class="text-xs text-green-400 mt-4 p-2 bg-gray-800 rounded border border-green-800">
+                    <b>Preview Mode Aktif!</b><br>
+                    Guru: admin / edudigital<br>
+                    Siswa: peserta / edudigital
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- TEACHER DASHBOARD -->
+    <div id="screen-teacher" class="screen bg-gray-900">
+        <nav class="bg-gray-800 p-4 border-b-4 border-gray-700 flex justify-between items-center">
+            <h1 class="font-retro text-xl text-yellow-400">DASHBOARD GURU</h1>
+            <div class="flex gap-4">
+                <span class="text-gray-300 py-2">👨‍🏫 Admin</span>
+                <button onclick="doLogout()" class="rpg-button-alt py-1 px-4 rounded text-sm">LOGOUT</button>
+            </div>
+        </nav>
+        <div class="flex flex-1 flex-col md:flex-row">
+            <!-- Sidebar -->
+            <div class="w-full md:w-64 bg-gray-800 p-4 border-r-4 border-gray-700 flex flex-col gap-2">
+                <button onclick="ui_switchTeacherTab('dash-home')" class="teacher-tab-btn rpg-button py-2 px-4 rounded text-left active" data-target="dash-home">📊 Beranda</button>
+                <button onclick="ui_switchTeacherTab('dash-students')" class="teacher-tab-btn rpg-button-alt py-2 px-4 rounded text-left" data-target="dash-students">👥 Data Siswa</button>
+                <button onclick="ui_switchTeacherTab('dash-create')" class="teacher-tab-btn rpg-button-alt py-2 px-4 rounded text-left" data-target="dash-create">⚔️ Buat Game</button>
+                <button onclick="ui_switchTeacherTab('dash-games')" class="teacher-tab-btn rpg-button-alt py-2 px-4 rounded text-left" data-target="dash-games">🎮 Monitor Game</button>
+            </div>
+            
+            <!-- Content -->
+            <div class="flex-1 p-6 overflow-y-auto">
+                <!-- Home Tab -->
+                <div id="dash-home" class="teacher-tab block">
+                    <h2 class="text-2xl font-bold mb-4">Ringkasan</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="rpg-panel p-4 text-center">
+                            <h3 class="text-gray-400">Total Siswa</h3>
+                            <p class="text-4xl font-bold text-yellow-400 mt-2" id="stat-students">0</p>
+                        </div>
+                        <div class="rpg-panel p-4 text-center">
+                            <h3 class="text-gray-400">Game Selesai</h3>
+                            <p class="text-4xl font-bold text-green-400 mt-2" id="stat-games">0</p>
+                        </div>
+                        <div class="rpg-panel p-4 text-center">
+                            <h3 class="text-gray-400">Siswa Aktif</h3>
+                            <p class="text-4xl font-bold text-blue-400 mt-2">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Students Tab -->
+                <div id="dash-students" class="teacher-tab hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Data Siswa</h2>
+                        <div class="flex gap-2">
+                            <button class="rpg-button-alt py-1 px-3 rounded text-sm bg-green-600 hover:bg-green-500" onclick="downloadExcelTemplate()">Download Template</button>
+                            <label class="rpg-button py-1 px-3 rounded text-sm cursor-pointer">
+                                Upload Excel
+                                <input type="file" class="hidden" accept=".xlsx, .xls" onchange="handleUploadExcel(event)">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="rpg-panel p-4 overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-gray-600 text-gray-400">
+                                    <th class="py-2">NIS</th><th class="py-2">Nama</th><th class="py-2">Kelas</th><th class="py-2">Username</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-table-body">
+                                <tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada data siswa. Upload excel untuk menambahkan.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Create Game Tab -->
+                <div id="dash-create" class="teacher-tab hidden">
+                    <h2 class="text-2xl font-bold mb-4">Buat Game Baru</h2>
+                    <div class="rpg-panel p-6 max-w-lg">
+                        <div class="mb-4">
+                            <label class="block text-gray-400 mb-2">Nama Quest / Game</label>
+                            <input type="text" id="game-name" value="Ulangan Harian 1" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
+                        </div>
+                        <div class="mb-6">
+                            <label class="block text-gray-400 mb-2">Jumlah Soal & Monster</label>
+                            <select id="game-questions" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white">
+                                <option value="10">10 Soal (Perjalanan Singkat)</option>
+                                <option value="15" selected>15 Soal (Normal)</option>
+                                <option value="20">20 Soal (Petualang Menengah)</option>
+                                <option value="30">30 Soal (Epic Quest)</option>
+                            </select>
+                        </div>
+                        <button onclick="doCreateGame()" class="rpg-button py-3 w-full rounded text-lg">GENERATE GAME & SOAL</button>
+                    </div>
+                </div>
+
+                <!-- Game Monitor Tab -->
+                <div id="dash-games" class="teacher-tab hidden">
+                    <h2 class="text-2xl font-bold mb-4">Monitor Game Aktif</h2>
+                    <div id="active-game-panel" class="rpg-panel p-6 mb-6 hidden border-yellow-400 shadow-[0_0_15px_rgba(233,69,96,0.5)]">
+                        <div class="flex justify-between items-center border-b border-gray-700 pb-4 mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-yellow-400" id="monitor-game-name">Nama Game</h3>
+                                <p class="text-gray-400 mt-1">Status: <span id="monitor-status" class="text-white font-bold bg-blue-600 px-2 py-1 rounded text-xs">WAITING (LOBBY)</span></p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-sm text-gray-400">Game Code</p>
+                                <p class="font-retro text-2xl text-white tracking-widest bg-black px-4 py-2 rounded mt-1 border border-gray-600" id="monitor-game-code">AAH000</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between mb-4">
+                            <h4 class="font-bold">Pemain Bergabung: <span id="monitor-player-count">0</span></h4>
+                            <div id="monitor-controls">
+                                <button onclick="doStartGame()" class="rpg-button bg-green-500 py-1 px-4 rounded font-bold">▶ MULAI GAME (START)</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Player grid for monitoring -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="monitor-players-grid">
+                            <!-- Players injected here -->
+                        </div>
+                    </div>
+
+                    <div id="no-active-game" class="text-center py-10 text-gray-500 rpg-panel">
+                        <p>Tidak ada game yang sedang aktif.</p>
+                        <button onclick="ui_switchTeacherTab('dash-create')" class="text-yellow-400 underline mt-2">Buat game baru</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDENT DASHBOARD / ENTER CODE -->
+    <div id="screen-student-dash" class="screen justify-center items-center p-4 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]">
+        <div class="absolute top-4 right-4 flex gap-4 items-center">
+            <span class="text-white font-bold" id="student-name-display">Siswa</span>
+            <button onclick="doLogout()" class="rpg-button-alt py-1 px-3 rounded text-sm">LOGOUT</button>
+        </div>
+        
+        <div class="rpg-panel p-8 w-full max-w-md text-center">
+            <h2 class="font-retro text-xl text-yellow-400 mb-6">MASUK ARENA</h2>
+            <p class="text-gray-300 mb-4 text-sm">Masukkan GAME CODE dari Guru untuk bergabung ke petualangan.</p>
+            
+            <input type="text" id="join-game-code" placeholder="AAHXXXX" class="font-retro text-center text-2xl p-4 rounded bg-black border-2 border-gray-600 text-white w-full outline-none focus:border-yellow-400 uppercase tracking-widest mb-4">
+            
+            <button onclick="doJoinGame()" class="rpg-button py-3 px-4 rounded w-full text-lg mb-4" id="btn-join">JOIN GAME</button>
+            <p id="join-error" class="text-red-400 text-sm hidden">Game Code tidak ditemukan atau tidak aktif!</p>
+        </div>
+    </div>
+
+    <!-- STUDENT LOBBY (AVATAR SELECTION) -->
+    <div id="screen-lobby" class="screen p-4 bg-gray-900">
+        <div class="max-w-4xl mx-auto w-full flex flex-col h-full">
+            <div class="bg-black border-4 border-[var(--rpg-accent)] rounded-xl p-4 mb-4 text-center">
+                <p class="text-gray-400 text-sm">LOBBY PENGUMPULAN</p>
+                <h2 class="font-retro text-2xl text-yellow-400 mt-2 mb-2" id="lobby-game-name">Tantangan Lembar Kerja</h2>
+                <p class="text-white">Menunggu Guru Memulai Game... <span class="animate-pulse">⏳</span></p>
+            </div>
+            
+            <div class="flex-1 rpg-panel p-4 overflow-y-auto">
+                <h3 class="text-center font-bold text-lg mb-4 text-blue-300 border-b border-blue-900 pb-2">Pilih Avatar Petarungmu</h3>
+                <div class="avatar-grid" id="avatar-container">
+                    <!-- Avatars injected here -->
+                </div>
+            </div>
+            
+            <div class="rpg-panel p-4 mt-4 text-center bg-gray-800">
+                <p class="text-sm text-gray-400 mb-2">Petualang yang telah tiba:</p>
+                <div class="flex flex-wrap gap-2 justify-center" id="lobby-players-list">
+                    <!-- Players injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME PLAY SCREEN -->
+    <div id="screen-game" class="screen bg-[#0f172a] relative">
+        <!-- Top HUD -->
+        <div class="bg-black bg-opacity-80 p-2 md:p-4 border-b-4 border-yellow-600 flex justify-between items-center sticky top-0 z-10">
+            <div class="flex items-center gap-2">
+                <div id="player-avatar-hud" class="text-3xl bg-gray-800 rounded-full h-12 w-12 flex items-center justify-center border-2 border-yellow-400">🧑</div>
+                <div>
+                    <div class="text-xs text-gray-400 font-bold" id="player-name-hud">Player</div>
+                    <div class="flex" id="hp-container">
+                        <!-- Hearts injected here -->
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <div class="text-[10px] text-gray-400 font-retro">LEVEL</div>
+                <div class="text-xl md:text-2xl font-retro text-white"><span id="level-current">1</span>/<span id="level-total">15</span></div>
+            </div>
+            <div class="text-right">
+                <div class="text-[10px] text-gray-400 font-retro">SCORE</div>
+                <div class="text-xl md:text-2xl font-retro text-yellow-400" id="score-display">0</div>
+            </div>
+        </div>
+        
+        <!-- Battle Arena -->
+        <div class="flex-1 flex flex-col justify-center items-center relative overflow-hidden" id="battle-arena">
+            <!-- Background Elements -->
+            <div class="absolute inset-0 opacity-20 pointer-events-none" style="background-image: radial-gradient(#4ade80 1px, transparent 1px); background-size: 20px 20px;"></div>
+            
+            <!-- Monster & Character -->
+            <div class="flex justify-between w-full max-w-2xl px-8 items-end mb-8 relative z-10 h-48">
+                <!-- Player -->
+                <div class="flex flex-col items-center transform transition-transform duration-300" id="arena-player">
+                    <div class="text-6xl md:text-8xl drop-shadow-lg" id="arena-avatar">🧑</div>
+                </div>
+                <!-- Damage Text -->
+                <div id="damage-text" class="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl font-retro font-bold text-red-500 opacity-0 pointer-events-none transition-all duration-500"></div>
+                <!-- Monster -->
+                <div class="flex flex-col items-center transform transition-transform duration-300" id="arena-monster">
+                    <div class="text-xs text-red-400 font-bold bg-black px-2 py-1 rounded mb-2 border border-red-900" id="monster-name">Cell Goblin</div>
+                    <div class="text-6xl md:text-8xl animate-float drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]" id="monster-emoji">👾</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Question Panel -->
+        <div class="rpg-panel border-t-4 border-yellow-600 rounded-none rounded-t-xl z-20">
+            <div class="p-4 md:p-6 max-w-3xl mx-auto">
+                <p class="text-xs text-blue-300 mb-2 font-bold uppercase tracking-wider" id="q-category">Dasar Google Sheets</p>
+                <h3 class="text-lg md:text-xl font-bold mb-6" id="q-text">Pertanyaan akan muncul di sini...</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="q-options">
+                    <!-- Options injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="screen-result" class="screen bg-gray-900 justify-center items-center p-4">
+        <div class="rpg-panel p-8 max-w-lg w-full text-center border-yellow-500 shadow-[0_0_30px_rgba(234,179,8,0.3)]">
+            <div class="text-6xl mb-4" id="result-avatar">🧑</div>
+            <h1 class="font-retro text-2xl text-yellow-400 mb-2">QUEST SELESAI!</h1>
+            <p class="text-gray-300 mb-6 text-xl font-bold" id="result-name">Nama Pemain</p>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-black p-4 rounded border border-gray-700">
+                    <p class="text-xs text-gray-500 font-retro">SCORE</p>
+                    <p class="text-2xl font-bold text-yellow-400" id="result-score">0</p>
+                </div>
+                <div class="bg-black p-4 rounded border border-gray-700">
+                    <p class="text-xs text-gray-500 font-retro">NILAI</p>
+                    <p class="text-2xl font-bold text-green-400" id="result-grade">0</p>
+                </div>
+                <div class="bg-black p-3 rounded border border-gray-700">
+                    <p class="text-xs text-gray-500">BENAR</p>
+                    <p class="text-lg font-bold text-blue-400">✅ <span id="result-correct">0</span></p>
+                </div>
+                <div class="bg-black p-3 rounded border border-gray-700">
+                    <p class="text-xs text-gray-500">SALAH</p>
+                    <p class="text-lg font-bold text-red-400">❌ <span id="result-wrong">0</span></p>
+                </div>
+            </div>
+            
+            <button onclick="ui_showScreen('screen-student-dash')" class="rpg-button-alt py-3 w-full rounded">KEMBALI KE MENU</button>
+        </div>
+    </div>
+
+    <!-- MAIN LOGIC -->
     <script>
-        const IS_PREVIEW = false; 
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIHOtoHnKSm51jfPwVuGrG3jlHv25UrYqnWav7up93PUxgw1MaL5u3FBk7dCxfa-Wb/exec";
+        /* --- UTILITIES & NAVIGATION --- */
+        function ui_showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
 
-        const AVATARS = ['🧙‍♂️','🧝‍♀️','🥷','🤴','🧜‍♀️','🧞‍♂️','🦸‍♂️','🧚‍♀️','🧛‍♂️','🧟‍♂️','🦹‍♀️','👩‍🚀','🕵️‍♂️','💂‍♀️','👩‍🚒','👮‍♂️','🦊','🦁','🐯','🐼','🦉','🐺','🦄','🦖','🐉','🦅','🦈','🐙','🤖','👾','🎃','👽'];
-        const MONSTERS = ['👾','👹','👺','👻','💀','🐊','🦍','🦂','🕷️','🦠'];
-
-        const state = {
-            currentUser: null, currentGame: null,
-            tavernPolling: null, liveboardPolling: null, battlePolling: null,
-            takenAvatars: [], inBattle: false, adminMaxSoal: 10,
-            battle: { questions: [], currentIndex: 0, heroHP: 100, monsterHP: 100, score: 0, selectedAvatar: '🧙‍♂️', maxSoal: 10 }
-        };
-
-        const utils = {
-            async apiCall(action, payload = {}) {
-                if(IS_PREVIEW) return { success: false }; 
-                try {
-                    const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=${action}&payload=${encodeURIComponent(JSON.stringify(payload))}` });
-                    return await res.json();
-                } catch(e) { return { success: false }; }
-            },
-            showView(viewId) {
-                ['view-login','view-admin','view-siswa','view-tavern','view-battle'].forEach(v => document.getElementById(v).classList.add('hidden'));
-                document.getElementById(viewId).classList.remove('hidden');
-            },
-            toast(title, icon='success') { Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon, title }); }
-        };
-
-        const app = {
-            async handleLogin(e) {
-                e.preventDefault();
-                const u = document.getElementById('login-username').value;
-                const p = document.getElementById('login-password').value;
-                const btn = document.getElementById('btn-login'); btn.innerText = 'LOADING...';
-                
-                const res = await utils.apiCall('login', { username: u, password: p });
-                btn.innerText = 'MULAI PETUALANGAN';
-                if(res.success) {
-                    state.currentUser = res.user;
-                    if(res.user.role === 'admin') { utils.showView('view-admin'); this.switchAdminMenu('data-siswa'); }
-                    else { utils.showView('view-siswa'); document.getElementById('hero-name-display').innerText = res.user.nama; }
-                } else Swal.fire('Gagal', res.message, 'error');
-            },
-            logout() {
-                clearInterval(state.tavernPolling); clearInterval(state.liveboardPolling); clearInterval(state.battlePolling);
-                state.currentUser = null; state.inBattle = false;
-                utils.showView('view-login');
-            },
-
-            switchAdminMenu(m) {
-                document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
-                document.getElementById(`admin-${m}`).classList.remove('hidden');
-                if(m === 'data-siswa') this.loadStudents();
-                if(m === 'laporan') this.loadLaporan();
-            },
-            async loadStudents() {
-                const res = await utils.apiCall('getStudents');
-                if(res.success) {
-                    document.getElementById('table-siswa-body').innerHTML = res.data.map(s => 
-                    `<tr>
-                        <td class="px-6 py-4 whitespace-nowrap">${s.username}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">${s.nama}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <button onclick="app.deleteStudent('${s.username}')" class="text-red-500 font-bold hover:text-red-700 bg-red-50 px-3 py-1 rounded-lg">Hapus</button>
-                        </td>
-                    </tr>`).join('');
-                }
-            },
+        function ui_showLoginForm(role) {
+            document.getElementById('login-selection').classList.add('hidden');
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('login-form').style.display = 'flex';
+            document.getElementById('btn-do-login').dataset.role = role;
             
-            async showAddStudentModal() {
-                const { value: formValues } = await Swal.fire({
-                    title: 'Tambah Siswa',
-                    html:
-                        '<input id="swal-input1" class="swal2-input" placeholder="Username (misal: siswa01)">' +
-                        '<input id="swal-input2" class="swal2-input" placeholder="Nama Lengkap">' +
-                        '<input id="swal-input3" class="swal2-input" placeholder="Password (default: edudigital)" value="edudigital">',
-                    focusConfirm: false, showCancelButton: true, confirmButtonText: 'Simpan',
-                    preConfirm: () => ({ username: document.getElementById('swal-input1').value.trim(), nama: document.getElementById('swal-input2').value.trim(), password: document.getElementById('swal-input3').value.trim() })
-                });
-
-                if (formValues && formValues.username && formValues.nama) {
-                    Swal.fire({title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-                    const res = await utils.apiCall('addStudent', formValues);
-                    if(res.success) { utils.toast('Siswa ditambahkan'); this.loadStudents(); } 
-                    else Swal.fire('Gagal', res.message, 'error');
-                }
-            },
-
-            async deleteStudent(username) {
-                if(confirm(`Yakin menghapus: ${username}?`)) {
-                    const res = await utils.apiCall('deleteStudent', {username});
-                    if(res.success) { utils.toast('Siswa dihapus'); this.loadStudents(); }
-                }
-            },
-
-            downloadTemplate() {
-                const ws = XLSX.utils.aoa_to_sheet([["username", "password", "nama"], ["budi01", "edudigital", "Budi Santoso"]]);
-                const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template");
-                XLSX.writeFile(wb, "Template_Siswa.xlsx");
-            },
-
-            handleFileUpload(e) {
-                const file = e.target.files[0]; if(!file) return;
-                const reader = new FileReader();
-                reader.onload = async (evt) => {
-                    const data = XLSX.utils.sheet_to_json(XLSX.read(evt.target.result, {type:'binary'}).Sheets[XLSX.read(evt.target.result, {type:'binary'}).SheetNames[0]]);
-                    if(data.length > 0) {
-                        Swal.fire({title: 'Mengupload...', didOpen: () => Swal.showLoading()});
-                        const res = await utils.apiCall('bulkUpload', data);
-                        if(res.success) { Swal.fire('Sukses', `${res.count} siswa ditambahkan!`, 'success'); this.loadStudents(); }
-                    }
-                    e.target.value = ''; 
-                };
-                reader.readAsBinaryString(file);
-            },
-            
-            // ADMIN GAMEPLAY
-            async generateGame() {
-                const max = document.getElementById('jumlah-soal').value;
-                state.adminMaxSoal = parseInt(max);
-                const forcedKode = 'ANDHI' + Math.floor(1000 + Math.random() * 9000);
-                
-                const res = await utils.apiCall('generateGame', { max, kode: forcedKode });
-                if(res.success) {
-                    state.currentGame = res.kode || forcedKode;
-                    document.getElementById('game-setup-ui').classList.add('hidden');
-                    document.getElementById('active-game-panel').classList.remove('hidden');
-                    document.getElementById('display-kode-game').innerText = state.currentGame;
-                    document.getElementById('lobby-wait-ui').classList.remove('hidden');
-                    document.getElementById('liveboard-ui').classList.add('hidden');
-                    document.getElementById('liveboard-container').innerHTML = '';
-                    state.tavernPolling = setInterval(() => this.pollTavernAdmin(), 2000);
-                }
-            },
-            async pollTavernAdmin() {
-                const res = await utils.apiCall('getWaitingPlayers', { kode: state.currentGame });
-                if(res.success && Array.isArray(res.players)) {
-                    document.getElementById('count-waiting').innerText = res.players.length;
-                    document.getElementById('list-waiting-players').innerHTML = res.players.map(p => `<span class="bg-blue-100 text-blue-900 font-bold px-4 py-2 rounded-full border border-blue-300 shadow-sm">${p.avatar} ${p.nama}</span>`).join('');
-                    document.getElementById('btn-start-game').disabled = res.players.length === 0;
-                }
-            },
-            async startGameAdmin() {
-                await utils.apiCall('startGame', { kode: state.currentGame });
-                clearInterval(state.tavernPolling);
-                document.getElementById('lobby-wait-ui').classList.add('hidden');
-                document.getElementById('liveboard-ui').classList.remove('hidden');
-                document.getElementById('liveboard-ui').style.display = 'block';
-                state.liveboardPolling = setInterval(() => this.pollLiveboard(), 2500);
-            },
-            
-            async pollLiveboard() {
-                const res = await utils.apiCall('getLiveProgress', { kode: state.currentGame });
-                if(res.success) {
-                    let playersData = Array.isArray(res.data) ? res.data : [];
-                    if (playersData.length === 0) return;
-
-                    const container = document.getElementById('liveboard-container');
-                    playersData.sort((a, b) => b.skor - a.skor);
-                    
-                    const rowHeight = 90;
-                    container.style.height = (playersData.length * rowHeight) + 'px';
-
-                    playersData.forEach((p, index) => {
-                        let el = document.getElementById('lb-' + p.username);
-                        const progressPct = Math.min(100, (p.progres_soal / state.adminMaxSoal) * 100);
-                        
-                        if(!el) {
-                            el = document.createElement('div');
-                            el.id = 'lb-' + p.username;
-                            el.className = 'absolute left-0 right-0 bg-white rounded-2xl shadow-md border-2 border-blue-100 p-4 transition-all duration-700 ease-in-out flex items-center gap-4';
-                            el.innerHTML = `
-                                <div class="text-4xl w-12 text-center bg-gray-100 rounded-xl p-1 border border-gray-200">${p.avatar || '🧙‍♂️'}</div>
-                                <div class="flex-1">
-                                    <div class="flex justify-between items-end mb-1">
-                                        <div class="font-bold text-blue-900">${p.nama}</div>
-                                        <div class="text-sm font-black text-purple-700">Skor: <span class="skor-val">${Math.round(p.skor)}</span></div>
-                                    </div>
-                                    <div class="w-full bg-gray-200 rounded-full h-3 mb-1 overflow-hidden shadow-inner">
-                                        <div class="prog-bar bg-gradient-to-r from-blue-400 to-purple-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-                                    </div>
-                                    <div class="flex justify-between text-xs font-bold px-1">
-                                        <span class="text-gray-500">Soal: <span class="soal-val">${p.progres_soal}</span>/${state.adminMaxSoal}</span>
-                                        <span class="text-red-500">HP: <span class="hp-val">${p.hp}</span></span>
-                                    </div>
-                                </div>
-                                <div class="text-3xl font-black text-gray-200 w-8 text-center rank-val">#${index+1}</div>
-                            `;
-                            container.appendChild(el);
-                        } else {
-                            el.querySelector('.skor-val').innerText = Math.round(p.skor);
-                            el.querySelector('.soal-val').innerText = p.progres_soal;
-                            el.querySelector('.hp-val').innerText = p.hp;
-                            el.querySelector('.rank-val').innerText = '#' + (index + 1);
-                        }
-                        
-                        setTimeout(() => el.querySelector('.prog-bar').style.width = progressPct + '%', 50);
-                        el.style.transform = `translateY(${index * rowHeight}px)`;
-                    });
-                }
-            },
-            async stopGameAdmin() {
-                await utils.apiCall('stopGame', { kode: state.currentGame });
-                clearInterval(state.liveboardPolling);
-                document.getElementById('game-setup-ui').classList.remove('hidden');
-                document.getElementById('active-game-panel').classList.add('hidden');
-                utils.toast('Game dihentikan paksa');
-            },
-            
-            async loadLaporan() {
-                const res = await utils.apiCall('getLaporanAll');
-                if(res.success && Array.isArray(res.data)) {
-                    document.getElementById('table-laporan-body').innerHTML = res.data.map(l => `<tr><td class="p-3 border-b">${l.tanggal}</td><td class="p-3 border-b font-bold">${l.kode_game}</td><td class="p-3 border-b">${l.nama}</td><td class="p-3 border-b text-blue-600 font-black">${l.skor}</td><td class="p-3 border-b text-red-500 font-bold">${l.hp}</td></tr>`).join('');
-                }
-            },
-
-            // SISWA
-            async joinQuest(e) {
-                e.preventDefault();
-                const kode = document.getElementById('input-kode-quest').value.toUpperCase();
-                state.battle.selectedAvatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-                
-                const res = await utils.apiCall('joinGame', { kode, username: state.currentUser.username, nama: state.currentUser.nama, avatar: state.battle.selectedAvatar });
-                if(res.success) {
-                    state.currentGame = kode; state.battle.maxSoal = res.maxSoal; state.inBattle = false;
-                    utils.showView('view-tavern');
-                    state.tavernPolling = setInterval(() => this.pollTavernSiswa(), 2000);
-                } else Swal.fire('Kode Invalid', 'Pastikan kode BENAR (cth: ANDHI1234) dan belum dimulai.', 'error');
-            },
-            async pollTavernSiswa() {
-                if(state.inBattle) return;
-                const res = await utils.apiCall('getWaitingPlayers', { kode: state.currentGame });
-                if(res.success && Array.isArray(res.players)) {
-                    document.getElementById('tavern-count').innerText = res.players.length;
-                    document.getElementById('tavern-player-list').innerHTML = res.players.map(p => `<div class="bg-black/30 p-3 rounded-lg border border-white/10 text-lg shadow-sm">${p.avatar} <span class="font-bold ml-2">${p.nama}</span></div>`).join('');
-                    state.takenAvatars = res.players.filter(p => p.username !== state.currentUser.username).map(p => p.avatar);
-                    this.renderAvatarSelection();
-                }
-
-                const sRes = await utils.apiCall('checkGameStatus', { kode: state.currentGame });
-                if(sRes.success && sRes.status === 'playing' && !state.inBattle) {
-                    state.inBattle = true; clearInterval(state.tavernPolling); this.initBattle();
-                }
-            },
-            renderAvatarSelection() {
-                const container = document.getElementById('avatar-selection');
-                container.innerHTML = AVATARS.map(a => {
-                    const isTaken = state.takenAvatars.includes(a); const isSel = state.battle.selectedAvatar === a;
-                    const style = isTaken ? 'opacity-20 cursor-not-allowed filter grayscale' : (isSel ? 'bg-yellow-400 text-black shadow-[0_0_15px_rgba(250,204,21,0.8)]' : 'hover:bg-white/20');
-                    return `<button onclick="app.selectAvatar('${a}', ${isTaken})" class="text-4xl p-2 rounded-xl transition-all duration-300 ${style}">${a}</button>`;
-                }).join('');
-                document.getElementById('selected-avatar-display').innerText = state.battle.selectedAvatar;
-            },
-            async selectAvatar(a, isTaken) {
-                if(isTaken) return; state.battle.selectedAvatar = a; this.renderAvatarSelection();
-                await utils.apiCall('updateAvatar', { kode: state.currentGame, username: state.currentUser.username, avatar: a });
-            },
-
-            // BATTLE LOGIC DENGAN FILTER DEDUP + VARIASI TIPE TIAP NOMOR
-            async initBattle() {
-                const res = await utils.apiCall('getQuestions', { maxSoal: state.battle.maxSoal });
-                let rawQuestions = Array.isArray(res.data) ? res.data : [];
-
-                // 1. DEDUPLIKASI SOAL (Mencegah soal sama untuk 1 siswa)
-                const uniqueMap = new Map();
-                rawQuestions.forEach(q => {
-                    const key = (q.q || '').trim().toLowerCase();
-                    if (key && !uniqueMap.has(key)) {
-                        uniqueMap.set(key, q);
-                    }
-                });
-                let uniqueQuestions = Array.from(uniqueMap.values());
-
-                // Acak urutan soal (Fisher-Yates Shuffle)
-                for (let i = uniqueQuestions.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [uniqueQuestions[i], uniqueQuestions[j]] = [uniqueQuestions[j], uniqueQuestions[i]];
-                }
-
-                // 2. VARIASI TIPE SOAL SELANG-SELING BERBEDABEDA TIAP NOMOR
-                const types = ['mc', 'type', 'dragdrop'];
-                let lastType = '';
-
-                const variedQuestions = uniqueQuestions.map((q) => {
-                    // Pastikan tipe soal nomor sekarang BERBEDA dari tipe soal sebelumnya
-                    let availableTypes = types.filter(t => t !== lastType);
-                    let selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-                    lastType = selectedType;
-
-                    let opts = q.options;
-                    if (!opts || !Array.isArray(opts) || opts.length < 2) {
-                        opts = [q.ans, "Pilihan B", "Pilihan C", "Pilihan D"];
-                    }
-                    opts = [...opts].sort(() => 0.5 - Math.random());
-
-                    return {
-                        ...q,
-                        type: selectedType,
-                        options: opts
-                    };
-                });
-
-                state.battle = { 
-                    ...state.battle, 
-                    questions: variedQuestions, 
-                    currentIndex: 0, 
-                    heroHP: 100, 
-                    monsterHP: 100, 
-                    score: 0 
-                };
-                
-                document.getElementById('hero-sprite').innerText = state.battle.selectedAvatar;
-                document.getElementById('battle-hero-name').innerText = state.currentUser.nama;
-                
-                utils.showView('view-battle');
-                this.updateLiveProgress();
-                this.renderQuestion();
-
-                state.battlePolling = setInterval(async () => {
-                    if(!state.inBattle) return;
-                    const sRes = await utils.apiCall('checkGameStatus', { kode: state.currentGame });
-                    if(sRes.success && sRes.status === 'finished') { clearInterval(state.battlePolling); Swal.fire('DIHENTIKAN!', 'Tower Master telah mengakhiri permainan.', 'warning').then(() => this.endBattle(true)); }
-                }, 3000);
-            },
-
-            updateBattleUI() {
-                const pHP = Math.max(0, state.battle.heroHP); const mHP = Math.max(0, state.battle.monsterHP);
-                document.getElementById('hero-hp-fill').style.width = pHP+'%'; document.getElementById('hero-hp-fill').className = `hp-bar-fill ${pHP<30?'hp-red':pHP<60?'hp-yellow':'hp-green'}`;
-                document.getElementById('monster-hp-fill').style.width = mHP+'%'; document.getElementById('monster-hp-fill').className = `hp-bar-fill ${mHP<30?'hp-red':mHP<60?'hp-yellow':'hp-green'}`;
-                document.getElementById('monster-sprite').innerText = MONSTERS[state.battle.currentIndex % MONSTERS.length];
-                document.getElementById('current-q-num').innerText = Math.min(state.battle.currentIndex + 1, state.battle.maxSoal);
-                document.getElementById('total-q-num').innerText = state.battle.maxSoal;
-            },
-
-            async updateLiveProgress() {
-                await utils.apiCall('updateProgress', { kode_game: state.currentGame, username: state.currentUser.username, skor: state.battle.score, hp: state.battle.heroHP, progres: state.battle.currentIndex });
-            },
-
-            renderQuestion() {
-                if(state.battle.currentIndex >= state.battle.maxSoal || state.battle.heroHP <= 0) { this.endBattle(); return; }
-                
-                const qPanel = document.getElementById('question-panel');
-                qPanel.classList.remove('show-q'); 
-                
-                this.updateBattleUI();
-                const q = state.battle.questions[state.battle.currentIndex];
-                
-                document.getElementById('q-category').innerText = `${q.kategori || 'Challenge'} • Mode: ${q.type.toUpperCase()}`;
-                document.getElementById('q-text').innerText = q.q;
-                const area = document.getElementById('q-interactive-area'); area.innerHTML = '';
-
-                if(q.type === 'mc') {
-                    const grid = document.createElement('div'); grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
-                    q.options.forEach(opt => {
-                        const b = document.createElement('button'); b.className = 'p-4 border-2 border-blue-200 rounded-xl text-left hover:bg-blue-50 font-bold text-lg shadow-sm transition-colors hover:border-blue-400'; b.innerText = opt;
-                        b.onclick = () => this.processAnswer(opt === q.ans); grid.appendChild(b);
-                    }); area.appendChild(grid);
-                } 
-                else if(q.type === 'type') {
-                    area.innerHTML = `<input type="text" id="ans-type" class="w-full p-4 border-2 border-blue-300 rounded-xl text-2xl font-mono mb-4 uppercase bg-gray-50 focus:outline-none focus:border-blue-500" placeholder="Ketik Jawaban di sini..."><button onclick="app.processAnswer(document.getElementById('ans-type').value.trim().toUpperCase() === '${q.ans}'.toUpperCase())" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg hover:opacity-90">SERANG JUGA!</button>`;
-                } 
-                else if(q.type === 'dragdrop') {
-                    area.innerHTML = `<div class="flex flex-wrap gap-3 mb-6 justify-center">` + q.options.map(o => `<button onclick="document.getElementById('dropzone').innerText='${o}'" class="px-6 py-3 bg-blue-100 text-blue-900 font-bold text-lg rounded-xl border-2 border-blue-300 hover:bg-blue-200 shadow-sm transition">${o}</button>`).join('') + `</div><div class="p-6 border-4 border-dashed border-gray-400 rounded-2xl text-center text-2xl font-black bg-gray-50 text-gray-500 h-24 flex items-center justify-center transition-all" id="dropzone">PILIH JAWABAN DI ATAS</div><button onclick="app.processAnswer(document.getElementById('dropzone').innerText === '${q.ans}')" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg mt-6">LEMPARKAN ATTACK!</button>`;
-                }
-
-                setTimeout(() => { qPanel.classList.add('show-q'); document.getElementById('q-interactive-area').style.pointerEvents = 'auto'; }, 1200); 
-            },
-
-            // ANIMASI PERTARUNGAN KEREN & DRAMATIS
-            async processAnswer(isCorrect) {
-                document.getElementById('q-interactive-area').style.pointerEvents = 'none';
-                document.getElementById('question-panel').classList.remove('show-q');
-                
-                const hero = document.getElementById('hero-sprite'); 
-                const mon = document.getElementById('monster-sprite'); 
-                const efx = document.getElementById('battle-effect');
-                const arena = document.getElementById('view-battle');
-
-                // Shake Arena untuk efek benturan keras
-                arena.classList.add('anim-shake-arena');
-
-                setTimeout(() => {
-                    if(isCorrect) {
-                        hero.classList.add('anim-attack-hero');
-                        setTimeout(() => {
-                            mon.classList.add('anim-damage'); 
-                            efx.innerText = 'CRITICAL HIT!'; 
-                            efx.className = 'text-6xl font-black absolute top-1/2 left-1/2 text-yellow-400 drop-shadow-[0_0_30px_rgba(234,179,8,1)] anim-crit-pop pointer-events-none z-50'; 
-                            efx.classList.remove('hidden');
-                            
-                            state.battle.monsterHP -= Math.ceil(100/state.battle.maxSoal); 
-                            state.battle.score += (100/state.battle.maxSoal); 
-                            this.updateBattleUI();
-                        }, 300);
-                    } else {
-                        mon.classList.add('anim-attack-monster');
-                        setTimeout(() => {
-                            hero.classList.add('anim-damage'); 
-                            efx.innerText = 'BLOCKED / DAMAGE!'; 
-                            efx.className = 'text-6xl font-black absolute top-1/2 left-1/2 text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)] anim-crit-pop pointer-events-none z-50'; 
-                            efx.classList.remove('hidden');
-                            
-                            state.battle.heroHP -= 25; 
-                            this.updateBattleUI();
-                        }, 300);
-                    }
-                }, 200); 
-
-                setTimeout(() => {
-                    hero.classList.remove('anim-attack-hero', 'anim-damage'); 
-                    mon.classList.remove('anim-attack-monster', 'anim-damage'); 
-                    arena.classList.remove('anim-shake-arena');
-                    efx.classList.add('hidden');
-
-                    if(isCorrect && state.battle.currentIndex < state.battle.maxSoal - 1 && state.battle.heroHP > 0) {
-                        mon.style.opacity = 0; hero.classList.add('anim-walk'); 
-                        setTimeout(() => { hero.classList.remove('anim-walk'); mon.style.opacity = 1; state.battle.currentIndex++; this.updateLiveProgress(); this.renderQuestion(); }, 1500);
-                    } else { state.battle.currentIndex++; this.updateLiveProgress(); this.renderQuestion(); }
-                }, 1900);
-            },
-
-            async endBattle(forced = false) {
-                clearInterval(state.battlePolling);
-                const finalScore = Math.round(state.battle.score); const sisaHP = Math.max(0, state.battle.heroHP);
-                if(!forced) await Swal.fire({ title: sisaHP > 0 ? 'VICTORY!' : 'GUGUR IN ACTION', html: `Skor: <b class="text-2xl text-blue-600">${finalScore}</b><br>HP Tersisa: <b class="text-xl text-red-500">${sisaHP}</b>`, icon: sisaHP > 0 ? 'success' : 'error' });
-                await utils.apiCall('submitScore', { tanggal: new Date().toLocaleDateString('id-ID'), kode_game: state.currentGame, username: state.currentUser.username, nama: state.currentUser.nama, skor: finalScore, hp: sisaHP });
-                state.inBattle = false; state.currentGame = null; utils.showView('view-siswa');
+            const isPreviewText = IS_PREVIEW ? ' (Preview)' : '';
+            if(role === 'admin') {
+                document.getElementById('login-title').innerText = 'LOGIN GURU' + isPreviewText;
+                document.getElementById('login-user').placeholder = 'Username Guru';
+                if(IS_PREVIEW) { document.getElementById('login-user').value = 'admin'; document.getElementById('login-pass').value = 'edudigital'; }
+            } else {
+                document.getElementById('login-title').innerText = 'LOGIN SISWA' + isPreviewText;
+                document.getElementById('login-user').placeholder = 'Username / NIS Siswa';
+                if(IS_PREVIEW) { document.getElementById('login-user').value = 'peserta'; document.getElementById('login-pass').value = 'edudigital'; }
             }
+        }
+
+        function ui_backToLoginSelection() {
+            document.getElementById('login-selection').classList.remove('hidden');
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('login-form').style.display = 'none';
+        }
+
+        function ui_switchTeacherTab(tabId) {
+            document.querySelectorAll('.teacher-tab').forEach(t => { t.classList.remove('block'); t.classList.add('hidden'); });
+            document.querySelectorAll('.teacher-tab-btn').forEach(b => {
+                b.classList.remove('rpg-button'); b.classList.add('rpg-button-alt');
+            });
+            
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            const btn = document.querySelector(`[data-target="${tabId}"]`);
+            if(btn) { btn.classList.remove('rpg-button-alt'); btn.classList.add('rpg-button'); }
+        }
+
+        function generateGameCode() {
+            return "AAH" + Math.floor(1000 + Math.random() * 9000);
+        }
+
+        /* --- API SIMULATION / FETCH --- */
+        async function apiCall(action, payload = {}) {
+            if (IS_PREVIEW) {
+                return new Promise(resolve => setTimeout(() => resolve(mockBackend(action, payload)), 500));
+            } else {
+                // Implementasi panggilan Google Apps Script (doPost)
+                try {
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ action: action, payload: payload }),
+                        headers: { "Content-Type": "text/plain;charset=utf-8" } // Untuk GAS web app
+                    });
+                    return await response.json();
+                } catch(e) {
+                    console.error("API Error", e);
+                    return { status: 'error', message: 'Koneksi ke server gagal.' };
+                }
+            }
+        }
+
+        /* --- MOCK BACKEND (FOR PREVIEW MODE) --- */
+        let mockDB = {
+            games: [],
+            students: [],
+            sessions: []
         };
+        
+        function mockBackend(action, payload) {
+            if (action === 'login') {
+                if (payload.role === 'admin' && payload.user === 'admin' && payload.pass === 'edudigital') {
+                    return { status: 'success', data: { role: 'admin', name: 'Guru Admin' } };
+                } else if (payload.role === 'student' && payload.user === 'peserta' && payload.pass === 'edudigital') {
+                    return { status: 'success', data: { role: 'student', id: 'S01', name: 'Peserta Uji Coba', kelas: '9A' } };
+                }
+                return { status: 'error', message: 'Kredensial salah!' };
+            }
+            if (action === 'createGame') {
+                const newGame = { code: generateGameCode(), name: payload.name, qCount: payload.qCount, status: 'WAITING' };
+                mockDB.games.push(newGame);
+                appState.currentGameCode = newGame.code;
+                return { status: 'success', data: newGame };
+            }
+            if (action === 'joinGame') {
+                const game = mockDB.games.find(g => g.code.toUpperCase() === payload.code.toUpperCase());
+                if(game && game.status === 'WAITING') {
+                    // Cek jika belum ada session
+                    let sess = mockDB.sessions.find(s => s.code === game.code && s.studentId === payload.studentId);
+                    if(!sess) {
+                        mockDB.sessions.push({ code: game.code, studentId: payload.studentId, name: payload.name, avatarId: null, status: 'LOBBY' });
+                    }
+                    return { status: 'success', data: { gameName: game.name, qCount: game.qCount } };
+                }
+                return { status: 'error', message: 'Code tidak valid atau game sudah dimulai.' };
+            }
+            if (action === 'pollLobby') {
+                const game = mockDB.games.find(g => g.code === payload.code);
+                const players = mockDB.sessions.filter(s => s.code === payload.code).map(s => ({name: s.name, avatarId: s.avatarId}));
+                // Simulasi ada pemain lain masuk
+                if(Math.random() > 0.7 && players.length < 5 && payload.isTeacher) {
+                    mockDB.sessions.push({code: payload.code, studentId: 'Bot'+Date.now(), name: 'Bot Player', avatarId: Math.floor(Math.random()*32), status:'LOBBY'});
+                }
+                return { status: 'success', data: { gameStatus: game ? game.status : 'UNKNOWN', players: players } };
+            }
+            if (action === 'selectAvatar') {
+                let sess = mockDB.sessions.find(s => s.code === payload.code && s.studentId === payload.studentId);
+                if(sess) sess.avatarId = payload.avatarId;
+                return { status: 'success' };
+            }
+            if (action === 'startGame') {
+                let game = mockDB.games.find(g => g.code === payload.code);
+                if(game) game.status = 'PLAYING';
+                return { status: 'success' };
+            }
+            if (action === 'updateProgress') {
+                 let sess = mockDB.sessions.find(s => s.code === payload.code && s.studentId === payload.studentId);
+                 if(sess) {
+                     sess.hp = payload.hp; sess.score = payload.score; sess.level = payload.level;
+                 }
+                 return { status: 'success' };
+            }
+            return { status: 'error', message: 'Action not found' };
+        }
+
+        /* --- AUTHENTICATION --- */
+        async function doLogin() {
+            const btn = document.getElementById('btn-do-login');
+            const role = btn.dataset.role;
+            const user = document.getElementById('login-user').value;
+            const pass = document.getElementById('login-pass').value;
+            
+            btn.innerText = "MEMUAT..."; btn.disabled = true;
+            
+            const res = await apiCall('login', { role, user, pass });
+            btn.innerText = "MASUK"; btn.disabled = false;
+
+            if(res.status === 'success') {
+                appState.user = res.data;
+                if(role === 'admin') {
+                    ui_showScreen('screen-teacher');
+                    ui_switchTeacherTab('dash-home');
+                } else {
+                    document.getElementById('student-name-display').innerText = res.data.name;
+                    ui_showScreen('screen-student-dash');
+                }
+            } else {
+                alert(res.message);
+            }
+        }
+
+        function doLogout() {
+            appState = { user: null, currentGameCode: null, players: [], hp: 5 }; // Reset state
+            if(appState.pollingInterval) clearInterval(appState.pollingInterval);
+            document.getElementById('login-user').value = '';
+            document.getElementById('login-pass').value = '';
+            ui_showScreen('screen-login');
+            ui_backToLoginSelection();
+        }
+
+        /* --- TEACHER FLOW --- */
+        function downloadExcelTemplate() {
+            // Contoh data template
+            const templateData = [
+                { NIS: "12345", Nama: "Contoh Siswa 1", Kelas: "9A", Username: "siswa01", Password: "password123" },
+                { NIS: "12346", Nama: "Contoh Siswa 2", Kelas: "9B", Username: "siswa02", Password: "password123" }
+            ];
+            
+            // Buat Workbook dan Worksheet baru menggunakan library SheetJS
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(templateData);
+            
+            // Atur lebar kolom agar terlihat rapi saat dibuka
+            const wscols = [
+                {wch: 10}, // NIS
+                {wch: 25}, // Nama
+                {wch: 10}, // Kelas
+                {wch: 15}, // Username
+                {wch: 15}  // Password
+            ];
+            ws['!cols'] = wscols;
+
+            // Masukkan worksheet ke workbook, dan eksekusi unduhan
+            XLSX.utils.book_append_sheet(wb, ws, "Template Siswa");
+            XLSX.writeFile(wb, "Template_Data_Siswa.xlsx");
+        }
+
+        function handleUploadExcel(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const json = XLSX.utils.sheet_to_json(worksheet);
+                
+                let tbody = document.getElementById('student-table-body');
+                tbody.innerHTML = '';
+                json.forEach(row => {
+                    tbody.innerHTML += `<tr class="border-b border-gray-700"><td class="py-2">${row.NIS||'-'}</td><td class="py-2">${row.Nama||'-'}</td><td class="py-2">${row.Kelas||'-'}</td><td class="py-2">${row.Username||'-'}</td></tr>`;
+                });
+                document.getElementById('stat-students').innerText = json.length;
+                alert("Simulasi berhasil membaca " + json.length + " baris data excel.");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function doCreateGame() {
+            const name = document.getElementById('game-name').value;
+            const qCount = document.getElementById('game-questions').value;
+            
+            const btn = document.querySelector('#dash-create button');
+            btn.innerText = "GENERATING..."; btn.disabled = true;
+
+            const res = await apiCall('createGame', { name, qCount: parseInt(qCount) });
+            btn.innerText = "GENERATE GAME & SOAL"; btn.disabled = false;
+
+            if(res.status === 'success') {
+                appState.currentGameCode = res.data.code;
+                
+                // Show Monitor panel
+                ui_switchTeacherTab('dash-games');
+                document.getElementById('no-active-game').classList.add('hidden');
+                document.getElementById('active-game-panel').classList.remove('hidden');
+                
+                document.getElementById('monitor-game-name').innerText = res.data.name;
+                document.getElementById('monitor-game-code').innerText = res.data.code;
+                document.getElementById('monitor-status').innerText = "WAITING (LOBBY)";
+                
+                // Start polling lobby
+                startPollingLobby(true);
+            }
+        }
+
+        async function doStartGame() {
+            if(!confirm("Mulai game sekarang? Pemain baru tidak bisa bergabung setelah ini.")) return;
+            await apiCall('startGame', { code: appState.currentGameCode });
+            document.getElementById('monitor-status').innerText = "PLAYING";
+            document.getElementById('monitor-status').className = "text-white font-bold bg-green-600 px-2 py-1 rounded text-xs";
+            document.getElementById('monitor-controls').innerHTML = "<button class='rpg-button bg-red-500 py-1 px-4 rounded font-bold'>AKHIRI GAME</button>";
+        }
+
+        /* --- STUDENT FLOW --- */
+        async function doJoinGame() {
+            const code = document.getElementById('join-game-code').value.trim();
+            if(!code) return;
+
+            const btn = document.getElementById('btn-join');
+            btn.innerText = "MEMUAT...";
+            const err = document.getElementById('join-error'); err.classList.add('hidden');
+
+            const res = await apiCall('joinGame', { code, studentId: appState.user.id, name: appState.user.name });
+            btn.innerText = "JOIN GAME";
+
+            if(res.status === 'success') {
+                appState.currentGameCode = code;
+                appState.questionsTotal = res.data.qCount;
+                document.getElementById('lobby-game-name').innerText = res.data.gameName;
+                ui_showScreen('screen-lobby');
+                renderAvatars();
+                startPollingLobby(false);
+            } else {
+                err.innerText = res.message; err.classList.remove('hidden');
+            }
+        }
+
+        function renderAvatars() {
+            const container = document.getElementById('avatar-container');
+            container.innerHTML = '';
+            AVATARS.forEach((emoji, index) => {
+                const div = document.createElement('div');
+                div.className = 'avatar-card p-2';
+                div.innerText = emoji;
+                div.dataset.id = index;
+                div.onclick = () => selectAvatar(index, div);
+                container.appendChild(div);
+            });
+        }
+
+        async function selectAvatar(index, element) {
+            if(element.classList.contains('taken')) return;
+            
+            // UI visual update
+            document.querySelectorAll('.avatar-card').forEach(c => c.classList.remove('selected'));
+            element.classList.add('selected');
+            appState.avatarId = index;
+
+            await apiCall('selectAvatar', { code: appState.currentGameCode, studentId: appState.user.id, avatarId: index });
+        }
+
+        /* --- POLLING LOGIC --- */
+        function startPollingLobby(isTeacher) {
+            if(appState.pollingInterval) clearInterval(appState.pollingInterval);
+            
+            appState.pollingInterval = setInterval(async () => {
+                const res = await apiCall('pollLobby', { code: appState.currentGameCode, isTeacher });
+                if(res.status === 'success') {
+                    // Update player list
+                    if(isTeacher) {
+                        document.getElementById('monitor-player-count').innerText = res.data.players.length;
+                        const grid = document.getElementById('monitor-players-grid');
+                        grid.innerHTML = res.data.players.map(p => `
+                            <div class="bg-gray-800 p-2 rounded flex items-center gap-2 border border-gray-600">
+                                <span class="text-2xl">${p.avatarId !== null ? AVATARS[p.avatarId] : '👤'}</span>
+                                <span class="text-sm truncate">${p.name}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        const list = document.getElementById('lobby-players-list');
+                        list.innerHTML = res.data.players.map(p => `
+                            <div class="bg-gray-700 px-2 py-1 rounded text-xs flex items-center gap-1">
+                                <span>${p.avatarId !== null ? AVATARS[p.avatarId] : '👤'}</span> ${p.name}
+                            </div>
+                        `).join('');
+
+                        // Update Avatar Availability (simplified for preview)
+                        document.querySelectorAll('.avatar-card').forEach(c => c.classList.remove('taken'));
+                        res.data.players.forEach(p => {
+                            if(p.avatarId !== null && p.name !== appState.user.name) {
+                                const card = document.querySelector(`.avatar-card[data-id="${p.avatarId}"]`);
+                                if(card) card.classList.add('taken');
+                            }
+                        });
+
+                        // Check if game started
+                        if(res.data.gameStatus === 'PLAYING') {
+                            clearInterval(appState.pollingInterval);
+                            initGameLoop();
+                        }
+                    }
+                }
+            }, 3000); // Poll every 3 seconds
+        }
+
+        /* --- GAMEPLAY LOGIC --- */
+        // Generator soal sederhana untuk client-side preview
+        function generateQuestions(count) {
+            const templates = [
+                {c: 'Fungsi Dasar', q: 'Fungsi apakah yang digunakan untuk menjumlahkan data di Google Sheets?', o: ['=SUM()', '=AVERAGE()', '=MAX()', '=MIN()'], a: 0},
+                {c: 'Fungsi Dasar', q: 'Fungsi untuk mencari nilai rata-rata adalah...', o: ['=TOTAL()', '=AVERAGE()', '=COUNT()', '=MEAN()'], a: 1},
+                {c: 'Menu & Icon', q: 'Untuk menggabungkan dua cell menjadi satu, kita menggunakan fitur...', o: ['Wrap Text', 'Merge Cells', 'Text Rotation', 'Filter'], a: 1},
+                {c: 'Logika', q: 'Jika cell A1 berisi 80, apa hasil dari =IF(A1>=75,"Lulus","Gagal") ?', o: ['Gagal', 'Error', 'Lulus', 'True'], a: 2},
+                {c: 'Fungsi Dasar', q: 'Untuk mencari nilai tertinggi dalam range B2:B10, formula yang benar adalah...', o: ['=MAX(B2:B10)', '=HIGH(B2:B10)', '=TOP(B2:B10)', '=MAXIMUM(B2:B10)'], a: 0}
+            ];
+            
+            let qs = [];
+            for(let i=0; i<count; i++) {
+                let template = templates[i % templates.length];
+                // Acak urutan pilihan jawaban
+                let options = [...template.o];
+                let correctStr = options[template.a];
+                options.sort(() => Math.random() - 0.5);
+                let newAnswerIndex = options.indexOf(correctStr);
+                
+                qs.push({
+                    category: template.c,
+                    text: template.q,
+                    options: options,
+                    answer: newAnswerIndex
+                });
+            }
+            return qs;
+        }
+
+        function initGameLoop() {
+            appState.hp = 5;
+            appState.score = 0;
+            appState.currentQIndex = 0;
+            appState.correctCount = 0;
+            appState.wrongCount = 0;
+            appState.questions = generateQuestions(appState.questionsTotal);
+            
+            // Set HUD
+            document.getElementById('player-avatar-hud').innerText = AVATARS[appState.avatarId] || "🧑";
+            document.getElementById('arena-avatar').innerText = AVATARS[appState.avatarId] || "🧑";
+            document.getElementById('player-name-hud').innerText = appState.user.name;
+            document.getElementById('level-total').innerText = appState.questionsTotal;
+            updateHUD();
+
+            ui_showScreen('screen-game');
+            loadQuestion();
+        }
+
+        function updateHUD() {
+            document.getElementById('score-display').innerText = appState.score;
+            document.getElementById('level-current').innerText = appState.currentQIndex + 1;
+            
+            let heartsHTML = '';
+            for(let i=1; i<=5; i++) {
+                heartsHTML += `<span class="hp-heart ${i > appState.hp ? 'empty' : ''}">❤</span>`;
+            }
+            document.getElementById('hp-container').innerHTML = heartsHTML;
+        }
+
+        const monsters = [
+            {name: "Cell Goblin", emoji: "👾"}, {name: "Row Beast", emoji: "🦍"},
+            {name: "Range Spider", emoji: "🕷️"}, {name: "Formula Slime", emoji: "💧"},
+            {name: "SUM Guardian", emoji: "🛡️"}
+        ];
+
+        function loadQuestion() {
+            if(appState.currentQIndex >= appState.questionsTotal) {
+                endGame();
+                return;
+            }
+
+            const q = appState.questions[appState.currentQIndex];
+            document.getElementById('q-category').innerText = q.category;
+            document.getElementById('q-text').innerText = q.text;
+            
+            // Random Monster
+            const m = monsters[appState.currentQIndex % monsters.length];
+            document.getElementById('monster-name').innerText = `Lv.${appState.currentQIndex+1} ${m.name}`;
+            document.getElementById('monster-emoji').innerText = m.emoji;
+            document.getElementById('arena-monster').style.opacity = '1';
+
+            const optContainer = document.getElementById('q-options');
+            optContainer.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'rpg-button-alt p-4 rounded text-left font-bold text-sm md:text-base border-2 border-transparent hover:border-yellow-400 transition-colors';
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(idx, q.answer, btn);
+                optContainer.appendChild(btn);
+            });
+            
+            updateHUD();
+        }
+
+        function handleAnswer(selectedIndex, correctIndex, btnElement) {
+            // Disable all buttons
+            const buttons = document.getElementById('q-options').querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            const isCorrect = selectedIndex === correctIndex;
+            const player = document.getElementById('arena-player');
+            const monster = document.getElementById('arena-monster');
+            const dmgText = document.getElementById('damage-text');
+            const arena = document.getElementById('battle-arena');
+
+            if(isCorrect) {
+                // Correct animation
+                btnElement.classList.replace('rpg-button-alt', 'rpg-button');
+                btnElement.classList.add('bg-green-600');
+                
+                appState.score += 100;
+                appState.correctCount++;
+                
+                // Player attacks
+                player.style.transform = 'translateX(50px)';
+                setTimeout(() => {
+                    player.style.transform = 'translateX(0)';
+                    arena.classList.add('flash-green');
+                    dmgText.innerText = "-100"; dmgText.className = "absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl font-retro font-bold text-yellow-400 pointer-events-none animate-float z-20";
+                    dmgText.style.opacity = '1';
+                    monster.classList.add('animate-shake');
+                    monster.style.filter = 'sepia(1) hue-rotate(-50deg) saturate(5)';
+                }, 150);
+
+            } else {
+                // Wrong animation
+                btnElement.classList.add('bg-red-600');
+                // show correct answer
+                buttons[correctIndex].classList.replace('rpg-button-alt', 'rpg-button');
+                buttons[correctIndex].classList.add('bg-green-600', 'opacity-50');
+
+                appState.hp = Math.max(0, appState.hp - 1);
+                appState.wrongCount++;
+                
+                // Monster attacks
+                monster.style.transform = 'translateX(-50px)';
+                setTimeout(() => {
+                    monster.style.transform = 'translateX(0)';
+                    arena.classList.add('flash-red');
+                    player.classList.add('animate-shake');
+                    dmgText.innerText = "-1 HP"; dmgText.className = "absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl font-retro font-bold text-red-500 pointer-events-none animate-float z-20";
+                    dmgText.style.opacity = '1';
+                }, 150);
+            }
+
+            updateHUD();
+
+            // Sync to backend asynchronously (fire and forget for smooth gameplay)
+            apiCall('updateProgress', { code: appState.currentGameCode, studentId: appState.user.id, hp: appState.hp, score: appState.score, level: appState.currentQIndex + 1 });
+
+            // Next Question Delay
+            setTimeout(() => {
+                dmgText.style.opacity = '0';
+                arena.classList.remove('flash-red', 'flash-green');
+                monster.classList.remove('animate-shake');
+                monster.style.filter = 'none';
+                
+                if(isCorrect) monster.style.opacity = '0'; // Monster dies
+                
+                setTimeout(() => {
+                    appState.currentQIndex++;
+                    loadQuestion();
+                }, 300); // fade out time
+            }, 1500); // show result time
+        }
+
+        function endGame() {
+            ui_showScreen('screen-result');
+            document.getElementById('result-avatar').innerText = AVATARS[appState.avatarId] || "🧑";
+            document.getElementById('result-name').innerText = appState.user.name;
+            document.getElementById('result-score').innerText = appState.score;
+            document.getElementById('result-correct').innerText = appState.correctCount;
+            document.getElementById('result-wrong').innerText = appState.wrongCount;
+            
+            const grade = Math.round((appState.correctCount / appState.questionsTotal) * 100);
+            document.getElementById('result-grade').innerText = grade;
+        }
+
     </script>
 </body>
 </html>
