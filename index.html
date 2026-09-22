@@ -84,8 +84,6 @@
                 <div id="admin-data-siswa" class="admin-panel bg-white p-6 rounded-2xl shadow-xl">
                     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                         <h2 class="text-2xl font-bold text-blue-900">Manajemen Siswa</h2>
-                        
-                        <!-- TOMBOL TAMBAH, DOWNLOAD, DAN UPLOAD -->
                         <div class="flex gap-2 flex-wrap">
                             <button onclick="app.downloadTemplate()" class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-700 transition"><i class="fas fa-file-excel mr-1"></i> Template</button>
                             <input type="file" id="upload-excel" accept=".xlsx, .xls" class="hidden" onchange="app.handleFileUpload(event)">
@@ -118,27 +116,27 @@
                                     <option value="10" selected>10 Soal</option>
                                     <option value="20">20 Soal</option>
                                     <option value="30">30 Soal</option>
-                                    <option value="40">40 Soal</option>
                                 </select>
                             </div>
                             <button onclick="app.generateGame()" class="bg-purple-600 text-white font-bold py-3 px-8 rounded-lg">Buat Game</button>
                         </div>
 
                         <div id="active-game-panel" class="hidden mt-6 text-center">
-                            <div class="text-6xl font-black text-blue-700 tracking-widest mb-4 drop-shadow-sm" id="display-kode-game">ANDHIXXXX</div>
+                            <!-- Display KODE GAME -->
+                            <div class="text-6xl font-black text-blue-700 tracking-widest mb-4 drop-shadow-sm" id="display-kode-game">MEMUAT...</div>
                             <div id="lobby-wait-ui">
                                 <p class="font-bold text-lg mb-2">Pahlawan Berkumpul: <span id="count-waiting">0</span></p>
                                 <div id="list-waiting-players" class="flex flex-wrap justify-center gap-2 mb-4 h-32 overflow-y-auto"></div>
                                 <button onclick="app.startGameAdmin()" id="btn-start-game" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg" disabled>MULAI PERTARUNGAN</button>
                             </div>
 
-                            <!-- Liveboard Realtime dg Smooth Sorting -->
+                            <!-- Liveboard Realtime -->
                             <div id="liveboard-ui" class="hidden mt-6 text-left">
                                 <div class="flex justify-between items-center mb-6 border-b-2 pb-4 border-gray-200">
                                     <h3 class="text-2xl font-bold text-red-600"><i class="fas fa-broadcast-tower mr-2 anim-pulse"></i>Live Arena Ranking</h3>
                                     <button onclick="app.stopGameAdmin()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow"><i class="fas fa-stop mr-2"></i>Hentikan Game</button>
                                 </div>
-                                <div id="liveboard-container" class="relative w-full transition-all duration-500"></div>
+                                <div id="liveboard-container" class="relative w-full transition-all duration-500 min-h-[300px]"></div>
                             </div>
                         </div>
                     </div>
@@ -166,7 +164,6 @@
 
         <!-- VIEW: TAVERN (PILIH AVATAR 32 KARAKTER) -->
         <div id="view-tavern" class="hidden min-h-screen w-full bg-tavern text-white p-4 relative overflow-hidden flex flex-col">
-            <!-- Dekorasi Ambient -->
             <div class="absolute top-10 left-10 w-48 h-48 bg-blue-500 rounded-full mix-blend-screen filter blur-[80px] opacity-40 anim-pulse"></div>
             <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-[90px] opacity-40 anim-pulse" style="animation-delay: 1s;"></div>
             
@@ -185,10 +182,8 @@
             </div>
         </div>
 
-        <!-- VIEW: BATTLE ARENA (FULLSCREEN ADAPTIVE) -->
+        <!-- VIEW: BATTLE ARENA -->
         <div id="view-battle" class="hidden min-h-screen w-full bg-gray-900 text-white relative overflow-hidden flex flex-col">
-            
-            <!-- Header Status -->
             <div class="flex justify-between items-center bg-gray-800 bg-opacity-80 backdrop-blur-sm p-4 z-20 border-b-2 border-gray-600">
                 <div class="text-center w-1/3">
                     <h3 id="battle-hero-name" class="text-blue-400 font-bold text-lg mb-1 drop-shadow">Hero</h3>
@@ -203,14 +198,12 @@
                 </div>
             </div>
 
-            <!-- Area Fullscreen Animasi -->
             <div class="flex-1 flex items-center justify-between px-8 md:px-32 relative transition-all duration-700 z-10" id="battle-scene">
                 <div id="hero-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_30px_rgba(59,130,246,0.8)] z-10 transition-all">🧙‍♂️</div>
                 <div id="battle-effect" class="text-6xl hidden font-black text-yellow-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">CRITICAL!</div>
                 <div id="monster-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_30px_rgba(239,68,68,0.8)] z-10 anim-float">👾</div>
             </div>
 
-            <!-- Panel Soal (Slide Up) -->
             <div id="question-panel" class="absolute bottom-0 left-0 w-full p-4 md:p-8 z-30 flex justify-center">
                 <div class="bg-white text-gray-900 rounded-3xl p-6 shadow-2xl relative border-4 border-blue-500 w-full max-w-4xl">
                     <div class="absolute -top-5 left-8 bg-blue-600 text-white text-sm font-black px-6 py-1 rounded-full shadow-lg border-2 border-white tracking-wide" id="q-category">Kategori</div>
@@ -218,7 +211,6 @@
                     <div id="q-interactive-area" class="w-full"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -239,7 +231,7 @@
 
         const utils = {
             async apiCall(action, payload = {}) {
-                if(IS_PREVIEW) return mockBackend(action, payload);
+                if(IS_PREVIEW) return { success: false }; 
                 try {
                     const res = await fetch(GAS_URL, { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: `action=${action}&payload=${encodeURIComponent(JSON.stringify(payload))}` });
                     return await res.json();
@@ -273,12 +265,10 @@
                 utils.showView('view-login');
             },
 
-            // ADMIN - MANAJEMEN SISWA 
             switchAdminMenu(m) {
                 document.querySelectorAll('.admin-panel').forEach(p => p.classList.add('hidden'));
                 document.getElementById(`admin-${m}`).classList.remove('hidden');
                 if(m === 'data-siswa') this.loadStudents();
-                // (Tambahan) Load laporan jika tab laporan diklik
                 if(m === 'laporan') this.loadLaporan();
             },
             async loadStudents() {
@@ -295,7 +285,6 @@
                 }
             },
             
-            // FITUR TAMBAH SISWA (SATUAN)
             async showAddStudentModal() {
                 const { value: formValues } = await Swal.fire({
                     title: 'Tambah Siswa',
@@ -303,82 +292,42 @@
                         '<input id="swal-input1" class="swal2-input" placeholder="Username (misal: siswa01)">' +
                         '<input id="swal-input2" class="swal2-input" placeholder="Nama Lengkap">' +
                         '<input id="swal-input3" class="swal2-input" placeholder="Password (default: edudigital)" value="edudigital">',
-                    focusConfirm: false,
-                    showCancelButton: true,
-                    confirmButtonText: 'Simpan',
-                    cancelButtonText: 'Batal',
-                    preConfirm: () => {
-                        return {
-                            username: document.getElementById('swal-input1').value.trim(),
-                            nama: document.getElementById('swal-input2').value.trim(),
-                            password: document.getElementById('swal-input3').value.trim()
-                        }
-                    }
+                    focusConfirm: false, showCancelButton: true, confirmButtonText: 'Simpan',
+                    preConfirm: () => ({ username: document.getElementById('swal-input1').value.trim(), nama: document.getElementById('swal-input2').value.trim(), password: document.getElementById('swal-input3').value.trim() })
                 });
 
                 if (formValues && formValues.username && formValues.nama) {
                     Swal.fire({title: 'Menyimpan...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
                     const res = await utils.apiCall('addStudent', formValues);
-                    if(res.success) {
-                        utils.toast('Siswa berhasil ditambahkan');
-                        this.loadStudents();
-                    } else {
-                        Swal.fire('Gagal', res.message, 'error');
-                    }
+                    if(res.success) { utils.toast('Siswa ditambahkan'); this.loadStudents(); } 
+                    else Swal.fire('Gagal', res.message, 'error');
                 }
             },
 
-            // FITUR HAPUS SISWA
             async deleteStudent(username) {
-                if(confirm(`Yakin ingin menghapus siswa dengan username: ${username}?`)) {
+                if(confirm(`Yakin menghapus: ${username}?`)) {
                     const res = await utils.apiCall('deleteStudent', {username});
-                    if(res.success) {
-                        utils.toast('Data siswa berhasil dihapus');
-                        this.loadStudents();
-                    } else {
-                        Swal.fire('Gagal', res.message, 'error');
-                    }
+                    if(res.success) { utils.toast('Siswa dihapus'); this.loadStudents(); }
                 }
             },
 
-            // FITUR DOWNLOAD TEMPLATE EXCEL
             downloadTemplate() {
-                const ws = XLSX.utils.aoa_to_sheet([
-                    ["username", "password", "nama"], 
-                    ["budi01", "edudigital", "Budi Santoso"],
-                    ["siti02", "edudigital", "Siti Aminah"]
-                ]);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Template");
+                const ws = XLSX.utils.aoa_to_sheet([["username", "password", "nama"], ["budi01", "edudigital", "Budi Santoso"]]);
+                const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Template");
                 XLSX.writeFile(wb, "Template_Siswa.xlsx");
             },
 
-            // FITUR UPLOAD EXCEL
             handleFileUpload(e) {
-                const file = e.target.files[0];
-                if(!file) return;
-                
+                const file = e.target.files[0]; if(!file) return;
                 const reader = new FileReader();
                 reader.onload = async (evt) => {
-                    const bstr = evt.target.result;
-                    const wb = XLSX.read(bstr, {type:'binary'});
-                    const wsname = wb.SheetNames[0];
-                    const ws = wb.Sheets[wsname];
-                    const data = XLSX.utils.sheet_to_json(ws);
-                    
+                    const data = XLSX.utils.sheet_to_json(XLSX.read(evt.target.result, {type:'binary'}).Sheets[XLSX.read(evt.target.result, {type:'binary'}).SheetNames[0]]);
                     if(data.length > 0) {
-                        Swal.fire({title: 'Mengupload Data...', text: 'Mohon tunggu', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+                        Swal.fire({title: 'Mengupload...', didOpen: () => Swal.showLoading()});
                         const res = await utils.apiCall('bulkUpload', data);
-                        if(res.success) {
-                            Swal.fire('Sukses', `${res.count} data siswa baru berhasil ditambahkan!`, 'success');
-                            this.loadStudents();
-                        } else {
-                            Swal.fire('Gagal', 'Terjadi kesalahan saat upload', 'error');
-                        }
-                    } else {
-                        Swal.fire('Format Salah', 'File excel kosong atau format tidak sesuai template.', 'warning');
+                        if(res.success) { Swal.fire('Sukses', `${res.count} siswa ditambahkan!`, 'success'); this.loadStudents(); }
                     }
-                    e.target.value = ''; // reset input agar bisa upload file yg sama jika gagal
+                    e.target.value = ''; 
                 };
                 reader.readAsBinaryString(file);
             },
@@ -387,21 +336,25 @@
             async generateGame() {
                 const max = document.getElementById('jumlah-soal').value;
                 state.adminMaxSoal = parseInt(max);
-                const res = await utils.apiCall('generateGame', { max });
+                
+                // Menerapkan Format KODE yang diinginkan (ANDHI + 4 Digit) dari sisi Frontend
+                const forcedKode = 'ANDHI' + Math.floor(1000 + Math.random() * 9000);
+                
+                const res = await utils.apiCall('generateGame', { max, kode: forcedKode });
                 if(res.success) {
-                    state.currentGame = res.kode;
+                    state.currentGame = res.kode || forcedKode; // Pastikan menggunakan format
                     document.getElementById('game-setup-ui').classList.add('hidden');
                     document.getElementById('active-game-panel').classList.remove('hidden');
-                    document.getElementById('display-kode-game').innerText = res.kode;
+                    document.getElementById('display-kode-game').innerText = state.currentGame;
                     document.getElementById('lobby-wait-ui').classList.remove('hidden');
                     document.getElementById('liveboard-ui').classList.add('hidden');
-                    document.getElementById('liveboard-container').innerHTML = ''; // Reset Liveboard
+                    document.getElementById('liveboard-container').innerHTML = '';
                     state.tavernPolling = setInterval(() => this.pollTavernAdmin(), 2000);
                 }
             },
             async pollTavernAdmin() {
                 const res = await utils.apiCall('getWaitingPlayers', { kode: state.currentGame });
-                if(res.success) {
+                if(res.success && Array.isArray(res.players)) {
                     document.getElementById('count-waiting').innerText = res.players.length;
                     document.getElementById('list-waiting-players').innerHTML = res.players.map(p => `<span class="bg-blue-100 text-blue-900 font-bold px-4 py-2 rounded-full border border-blue-300 shadow-sm">${p.avatar} ${p.nama}</span>`).join('');
                     document.getElementById('btn-start-game').disabled = res.players.length === 0;
@@ -411,21 +364,28 @@
                 await utils.apiCall('startGame', { kode: state.currentGame });
                 clearInterval(state.tavernPolling);
                 document.getElementById('lobby-wait-ui').classList.add('hidden');
+                
+                // FIX: Menampilkan Container Liveboard secara pasti
                 document.getElementById('liveboard-ui').classList.remove('hidden');
+                document.getElementById('liveboard-ui').style.display = 'block';
+                
                 state.liveboardPolling = setInterval(() => this.pollLiveboard(), 2500);
             },
             
-            // Animasi Liveboard Realtime
+            // FIX LIVEBOARD: Menambahkan proteksi Array agar .sort tidak menyebabkan Eror
             async pollLiveboard() {
                 const res = await utils.apiCall('getLiveProgress', { kode: state.currentGame });
                 if(res.success) {
-                    const container = document.getElementById('liveboard-container');
-                    res.data.sort((a, b) => b.skor - a.skor);
-                    
-                    const rowHeight = 90; // tinggi setiap card + margin
-                    container.style.height = (res.data.length * rowHeight) + 'px';
+                    let playersData = Array.isArray(res.data) ? res.data : []; // Proteksi struktur data
+                    if (playersData.length === 0) return;
 
-                    res.data.forEach((p, index) => {
+                    const container = document.getElementById('liveboard-container');
+                    playersData.sort((a, b) => b.skor - a.skor);
+                    
+                    const rowHeight = 90;
+                    container.style.height = (playersData.length * rowHeight) + 'px';
+
+                    playersData.forEach((p, index) => {
                         let el = document.getElementById('lb-' + p.username);
                         const progressPct = Math.min(100, (p.progres_soal / state.adminMaxSoal) * 100);
                         
@@ -434,7 +394,7 @@
                             el.id = 'lb-' + p.username;
                             el.className = 'absolute left-0 right-0 bg-white rounded-2xl shadow-md border-2 border-blue-100 p-4 transition-all duration-700 ease-in-out flex items-center gap-4';
                             el.innerHTML = `
-                                <div class="text-4xl w-12 text-center bg-gray-100 rounded-xl p-1 border border-gray-200">${p.avatar}</div>
+                                <div class="text-4xl w-12 text-center bg-gray-100 rounded-xl p-1 border border-gray-200">${p.avatar || '🧙‍♂️'}</div>
                                 <div class="flex-1">
                                     <div class="flex justify-between items-end mb-1">
                                         <div class="font-bold text-blue-900">${p.nama}</div>
@@ -471,19 +431,10 @@
                 utils.toast('Game dihentikan paksa');
             },
             
-            // ADMIN - LAPORAN 
             async loadLaporan() {
                 const res = await utils.apiCall('getLaporanAll');
-                if(res.success) {
-                    document.getElementById('table-laporan-body').innerHTML = res.data.map(l => 
-                        `<tr>
-                            <td class="p-3 border-b">${l.tanggal}</td>
-                            <td class="p-3 border-b font-bold">${l.kode_game}</td>
-                            <td class="p-3 border-b">${l.nama}</td>
-                            <td class="p-3 border-b text-blue-600 font-black">${l.skor}</td>
-                            <td class="p-3 border-b text-red-500 font-bold">${l.hp}</td>
-                        </tr>`
-                    ).join('');
+                if(res.success && Array.isArray(res.data)) {
+                    document.getElementById('table-laporan-body').innerHTML = res.data.map(l => `<tr><td class="p-3 border-b">${l.tanggal}</td><td class="p-3 border-b font-bold">${l.kode_game}</td><td class="p-3 border-b">${l.nama}</td><td class="p-3 border-b text-blue-600 font-black">${l.skor}</td><td class="p-3 border-b text-red-500 font-bold">${l.hp}</td></tr>`).join('');
                 }
             },
 
@@ -503,42 +454,53 @@
             async pollTavernSiswa() {
                 if(state.inBattle) return;
                 const res = await utils.apiCall('getWaitingPlayers', { kode: state.currentGame });
-                if(res.success) {
+                if(res.success && Array.isArray(res.players)) {
                     document.getElementById('tavern-count').innerText = res.players.length;
                     document.getElementById('tavern-player-list').innerHTML = res.players.map(p => `<div class="bg-black/30 p-3 rounded-lg border border-white/10 text-lg shadow-sm">${p.avatar} <span class="font-bold ml-2">${p.nama}</span></div>`).join('');
-                    
                     state.takenAvatars = res.players.filter(p => p.username !== state.currentUser.username).map(p => p.avatar);
                     this.renderAvatarSelection();
                 }
 
                 const sRes = await utils.apiCall('checkGameStatus', { kode: state.currentGame });
                 if(sRes.success && sRes.status === 'playing' && !state.inBattle) {
-                    state.inBattle = true; 
-                    clearInterval(state.tavernPolling);
-                    this.initBattle();
+                    state.inBattle = true; clearInterval(state.tavernPolling); this.initBattle();
                 }
             },
             renderAvatarSelection() {
                 const container = document.getElementById('avatar-selection');
                 container.innerHTML = AVATARS.map(a => {
-                    const isTaken = state.takenAvatars.includes(a);
-                    const isSel = state.battle.selectedAvatar === a;
+                    const isTaken = state.takenAvatars.includes(a); const isSel = state.battle.selectedAvatar === a;
                     const style = isTaken ? 'opacity-20 cursor-not-allowed filter grayscale' : (isSel ? 'bg-yellow-400 text-black shadow-[0_0_15px_rgba(250,204,21,0.8)]' : 'hover:bg-white/20');
                     return `<button onclick="app.selectAvatar('${a}', ${isTaken})" class="text-4xl p-2 rounded-xl transition-all duration-300 ${style}">${a}</button>`;
                 }).join('');
                 document.getElementById('selected-avatar-display').innerText = state.battle.selectedAvatar;
             },
             async selectAvatar(a, isTaken) {
-                if(isTaken) return;
-                state.battle.selectedAvatar = a;
-                this.renderAvatarSelection();
+                if(isTaken) return; state.battle.selectedAvatar = a; this.renderAvatarSelection();
                 await utils.apiCall('updateAvatar', { kode: state.currentGame, username: state.currentUser.username, avatar: a });
             },
 
             // BATTLE LOGIC
             async initBattle() {
                 const res = await utils.apiCall('getQuestions', { maxSoal: state.battle.maxSoal });
-                state.battle = { ...state.battle, questions: res.data, currentIndex: 0, heroHP: 100, monsterHP: 100, score: 0 };
+                
+                // FIX VARIASI SOAL: Memanipulasi tipe data secara bergiliran jika backend hanya memberikan soal biasa
+                let rawQuestions = Array.isArray(res.data) ? res.data : [];
+                const varietyTypes = ['mc', 'type', 'dragdrop']; // Rotasi tipe soal agar interaktif
+                
+                const variedQuestions = rawQuestions.map((q, index) => {
+                    let assignType = q.type || varietyTypes[index % varietyTypes.length]; // Terapkan tipe variasi otomatis
+                    
+                    let opts = q.options;
+                    if(!opts || !Array.isArray(opts)) {
+                        // Buat pengecoh dummy jika backend tidak mengirim opsi (untuk MC & DragDrop)
+                        opts = [q.ans, "Opsi Lain 1", "Opsi Lain 2", "Opsi Lain 3"].sort(()=>0.5-Math.random());
+                    }
+
+                    return { ...q, type: assignType, options: opts };
+                });
+
+                state.battle = { ...state.battle, questions: variedQuestions, currentIndex: 0, heroHP: 100, monsterHP: 100, score: 0 };
                 
                 document.getElementById('hero-sprite').innerText = state.battle.selectedAvatar;
                 document.getElementById('battle-hero-name').innerText = state.currentUser.nama;
@@ -547,14 +509,10 @@
                 this.updateLiveProgress();
                 this.renderQuestion();
 
-                // Polling Force Stop dari Guru
                 state.battlePolling = setInterval(async () => {
                     if(!state.inBattle) return;
                     const sRes = await utils.apiCall('checkGameStatus', { kode: state.currentGame });
-                    if(sRes.success && sRes.status === 'finished') {
-                        clearInterval(state.battlePolling);
-                        Swal.fire('DIHENTIKAN!', 'Tower Master telah mengakhiri permainan.', 'warning').then(() => this.endBattle(true));
-                    }
+                    if(sRes.success && sRes.status === 'finished') { clearInterval(state.battlePolling); Swal.fire('DIHENTIKAN!', 'Tower Master telah mengakhiri permainan.', 'warning').then(() => this.endBattle(true)); }
                 }, 3000);
             },
 
@@ -562,153 +520,82 @@
                 const pHP = Math.max(0, state.battle.heroHP); const mHP = Math.max(0, state.battle.monsterHP);
                 document.getElementById('hero-hp-fill').style.width = pHP+'%'; document.getElementById('hero-hp-fill').className = `hp-bar-fill ${pHP<30?'hp-red':pHP<60?'hp-yellow':'hp-green'}`;
                 document.getElementById('monster-hp-fill').style.width = mHP+'%'; document.getElementById('monster-hp-fill').className = `hp-bar-fill ${mHP<30?'hp-red':mHP<60?'hp-yellow':'hp-green'}`;
-                
                 document.getElementById('monster-sprite').innerText = MONSTERS[state.battle.currentIndex % MONSTERS.length];
                 document.getElementById('current-q-num').innerText = Math.min(state.battle.currentIndex + 1, state.battle.maxSoal);
                 document.getElementById('total-q-num').innerText = state.battle.maxSoal;
             },
 
             async updateLiveProgress() {
-                await utils.apiCall('updateProgress', {
-                    kode_game: state.currentGame, username: state.currentUser.username,
-                    skor: state.battle.score, hp: state.battle.heroHP, progres: state.battle.currentIndex
-                });
+                await utils.apiCall('updateProgress', { kode_game: state.currentGame, username: state.currentUser.username, skor: state.battle.score, hp: state.battle.heroHP, progres: state.battle.currentIndex });
             },
 
             renderQuestion() {
                 if(state.battle.currentIndex >= state.battle.maxSoal || state.battle.heroHP <= 0) { this.endBattle(); return; }
                 
                 const qPanel = document.getElementById('question-panel');
-                qPanel.classList.remove('show-q'); // Sembunyikan panel agar fullscreen terasa
+                qPanel.classList.remove('show-q'); 
                 
                 this.updateBattleUI();
                 const q = state.battle.questions[state.battle.currentIndex];
                 
-                document.getElementById('q-category').innerText = q.kategori;
+                document.getElementById('q-category').innerText = q.kategori || 'Challenge';
                 document.getElementById('q-text').innerText = q.q;
                 const area = document.getElementById('q-interactive-area'); area.innerHTML = '';
 
+                // Render Sesuai Tipe Variasi
                 if(q.type === 'mc') {
                     const grid = document.createElement('div'); grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
-                    [...q.options].sort(()=>0.5-Math.random()).forEach(opt => {
+                    q.options.forEach(opt => {
                         const b = document.createElement('button'); b.className = 'p-4 border-2 border-blue-200 rounded-xl text-left hover:bg-blue-50 font-bold text-lg shadow-sm transition-colors'; b.innerText = opt;
                         b.onclick = () => this.processAnswer(opt === q.ans); grid.appendChild(b);
                     }); area.appendChild(grid);
                 } 
                 else if(q.type === 'type') {
-                    area.innerHTML = `<input type="text" id="ans-type" class="w-full p-4 border-2 border-blue-300 rounded-xl text-2xl font-mono mb-4 uppercase bg-gray-50 focus:outline-none focus:border-blue-500" placeholder="=RUMUS(...)"><button onclick="app.processAnswer(document.getElementById('ans-type').value.trim().toUpperCase() === '${q.ans}'.toUpperCase())" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg hover:opacity-90">SERANG!</button>`;
+                    area.innerHTML = `<input type="text" id="ans-type" class="w-full p-4 border-2 border-blue-300 rounded-xl text-2xl font-mono mb-4 uppercase bg-gray-50 focus:outline-none focus:border-blue-500" placeholder="Ketik Jawaban di sini..."><button onclick="app.processAnswer(document.getElementById('ans-type').value.trim().toUpperCase() === '${q.ans}'.toUpperCase())" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg hover:opacity-90">SERANG!</button>`;
                 } 
-                else if(q.type === 'match') {
-                    state.matchState = { left: null, right: null, correctPairs: 0, total: q.pairs.length, items: q.pairs };
-                    const leftCol = document.createElement('div'); leftCol.className = 'flex flex-col gap-3 w-1/2 pr-3 border-r-2';
-                    const rightCol = document.createElement('div'); rightCol.className = 'flex flex-col gap-3 w-1/2 pl-3';
-                    
-                    const L = [...q.pairs].sort(()=>0.5-Math.random()); const R = [...q.pairs].sort(()=>0.5-Math.random());
-                    L.forEach((p,i) => leftCol.innerHTML += `<button id="mL${i}" onclick="app.selectMatch('L',${i},'${p.left}')" class="p-4 border-2 rounded-xl font-bold hover:bg-gray-100 shadow-sm">${p.left}</button>`);
-                    R.forEach((p,i) => rightCol.innerHTML += `<button id="mR${i}" onclick="app.selectMatch('R',${i},'${p.right}')" class="p-4 border-2 rounded-xl text-sm hover:bg-gray-100 shadow-sm leading-tight">${p.right}</button>`);
-                    
-                    const w = document.createElement('div'); w.className = 'flex w-full mt-2'; w.appendChild(leftCol); w.appendChild(rightCol);
-                    area.appendChild(w);
-                } 
-                else if(q.type === 'order') {
-                    area.innerHTML = `<div id="order-list" class="space-y-3 mb-6">` + q.options.map((o,i) => `<div class="p-4 border-2 border-gray-200 rounded-xl flex justify-between items-center bg-gray-50 font-bold text-gray-700 shadow-sm"><span>${o}</span> <div class="flex flex-col gap-1"><button onclick="app.moveOrder(${i},-1)" class="bg-blue-100 text-blue-600 p-1 px-3 rounded hover:bg-blue-200"><i class="fas fa-chevron-up"></i></button><button onclick="app.moveOrder(${i},1)" class="bg-blue-100 text-blue-600 p-1 px-3 rounded hover:bg-blue-200"><i class="fas fa-chevron-down"></i></button></div></div>`).join('') + `</div><button onclick="app.checkOrder()" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg">KONFIRMASI URUTAN</button>`;
-                    area.dataset.currentOrder = JSON.stringify(q.options);
-                }
                 else if(q.type === 'dragdrop') {
                     area.innerHTML = `<div class="flex flex-wrap gap-3 mb-6 justify-center">` + q.options.map(o => `<button onclick="document.getElementById('dropzone').innerText='${o}'" class="px-6 py-3 bg-blue-100 text-blue-900 font-bold text-lg rounded-xl border-2 border-blue-300 hover:bg-blue-200 shadow-sm">${o}</button>`).join('') + `</div><div class="p-6 border-4 border-dashed border-gray-400 rounded-2xl text-center text-2xl font-black bg-gray-50 text-gray-500 h-24 flex items-center justify-center transition-all" id="dropzone">PILIH JAWABAN DI ATAS</div><button onclick="app.processAnswer(document.getElementById('dropzone').innerText === '${q.ans}')" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg mt-6">SERANG!</button>`;
                 }
 
-                // Efek Bertemu Monster -> Tampilkan Soal setelah delay (Fullscreen Mode)
-                setTimeout(() => {
-                    qPanel.classList.add('show-q');
-                    document.getElementById('q-interactive-area').style.pointerEvents = 'auto';
-                }, 1200); 
-            },
-
-            selectMatch(side, idx, val) {
-                if(side === 'L') { state.matchState.left = {idx, val}; document.querySelectorAll('[id^=mL]').forEach(e=>e.classList.remove('bg-blue-200','border-blue-400')); document.getElementById(`mL${idx}`).classList.add('bg-blue-200','border-blue-400'); }
-                if(side === 'R') { state.matchState.right = {idx, val}; document.querySelectorAll('[id^=mR]').forEach(e=>e.classList.remove('bg-blue-200','border-blue-400')); document.getElementById(`mR${idx}`).classList.add('bg-blue-200','border-blue-400'); }
-                
-                if(state.matchState.left && state.matchState.right) {
-                    const lVal = state.matchState.left.val; const rVal = state.matchState.right.val;
-                    if(state.matchState.items.some(p => p.left === lVal && p.right === rVal)) {
-                        document.getElementById(`mL${state.matchState.left.idx}`).classList.add('bg-green-300','opacity-50','pointer-events-none');
-                        document.getElementById(`mR${state.matchState.right.idx}`).classList.add('bg-green-300','opacity-50','pointer-events-none');
-                        state.matchState.correctPairs++;
-                        if(state.matchState.correctPairs === state.matchState.total) setTimeout(() => this.processAnswer(true), 500);
-                    } else this.processAnswer(false);
-                    state.matchState.left = null; state.matchState.right = null;
-                }
-            },
-            moveOrder(idx, dir) {
-                const area = document.getElementById('q-interactive-area'); let arr = JSON.parse(area.dataset.currentOrder);
-                if(idx + dir < 0 || idx + dir >= arr.length) return;
-                let temp = arr[idx]; arr[idx] = arr[idx+dir]; arr[idx+dir] = temp;
-                state.battle.questions[state.battle.currentIndex].options = arr; this.renderQuestion();
-            },
-            checkOrder() {
-                const area = document.getElementById('q-interactive-area');
-                this.processAnswer(JSON.stringify(JSON.parse(area.dataset.currentOrder)) === JSON.stringify(state.battle.questions[state.battle.currentIndex].ans));
+                setTimeout(() => { qPanel.classList.add('show-q'); document.getElementById('q-interactive-area').style.pointerEvents = 'auto'; }, 1200); 
             },
 
             async processAnswer(isCorrect) {
                 document.getElementById('q-interactive-area').style.pointerEvents = 'none';
-                
-                // 1. Sembunyikan Soal (kembali fullscreen)
                 document.getElementById('question-panel').classList.remove('show-q');
                 
                 const hero = document.getElementById('hero-sprite'); const mon = document.getElementById('monster-sprite'); const efx = document.getElementById('battle-effect');
 
-                // 2. Play Animasi
                 setTimeout(() => {
                     if(isCorrect) {
                         hero.classList.add('anim-attack-hero');
                         setTimeout(() => {
-                            mon.classList.add('anim-damage');
-                            efx.innerText = 'TEPAT!'; efx.className = 'text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 font-black text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,1)] scale-150 transition-all'; efx.classList.remove('hidden');
-                            state.battle.monsterHP -= Math.ceil(100/state.battle.maxSoal); state.battle.score += (100/state.battle.maxSoal);
-                            this.updateBattleUI();
+                            mon.classList.add('anim-damage'); efx.innerText = 'TEPAT!'; efx.className = 'text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 font-black text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,1)] scale-150 transition-all'; efx.classList.remove('hidden');
+                            state.battle.monsterHP -= Math.ceil(100/state.battle.maxSoal); state.battle.score += (100/state.battle.maxSoal); this.updateBattleUI();
                         }, 300);
                     } else {
                         mon.classList.add('anim-attack-monster');
                         setTimeout(() => {
-                            hero.classList.add('anim-damage');
-                            efx.innerText = 'MISS!'; efx.className = 'text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 font-black text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)] scale-150 transition-all'; efx.classList.remove('hidden');
+                            hero.classList.add('anim-damage'); efx.innerText = 'MISS!'; efx.className = 'text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 font-black text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)] scale-150 transition-all'; efx.classList.remove('hidden');
                             state.battle.heroHP -= 25; this.updateBattleUI();
                         }, 300);
                     }
                 }, 300); 
 
-                // 3. Reset & Lanjut
                 setTimeout(() => {
                     hero.classList.remove('anim-attack-hero', 'anim-damage'); mon.classList.remove('anim-attack-monster', 'anim-damage'); efx.classList.add('hidden');
-
                     if(isCorrect && state.battle.currentIndex < state.battle.maxSoal - 1 && state.battle.heroHP > 0) {
                         mon.style.opacity = 0; hero.classList.add('anim-walk'); 
-                        setTimeout(() => {
-                            hero.classList.remove('anim-walk'); mon.style.opacity = 1;
-                            state.battle.currentIndex++;
-                            this.updateLiveProgress(); this.renderQuestion(); 
-                        }, 1500);
-                    } else {
-                        state.battle.currentIndex++;
-                        this.updateLiveProgress(); this.renderQuestion();
-                    }
+                        setTimeout(() => { hero.classList.remove('anim-walk'); mon.style.opacity = 1; state.battle.currentIndex++; this.updateLiveProgress(); this.renderQuestion(); }, 1500);
+                    } else { state.battle.currentIndex++; this.updateLiveProgress(); this.renderQuestion(); }
                 }, 1800);
             },
 
             async endBattle(forced = false) {
                 clearInterval(state.battlePolling);
-                const finalScore = Math.round(state.battle.score);
-                const sisaHP = Math.max(0, state.battle.heroHP);
-                
+                const finalScore = Math.round(state.battle.score); const sisaHP = Math.max(0, state.battle.heroHP);
                 if(!forced) await Swal.fire({ title: sisaHP > 0 ? 'MENANG!' : 'GUGUR...', html: `Skor: <b class="text-2xl">${finalScore}</b><br>HP: <b class="text-xl">${sisaHP}</b>`, icon: sisaHP > 0 ? 'success' : 'error' });
-                
-                await utils.apiCall('submitScore', {
-                    tanggal: new Date().toLocaleDateString('id-ID'), kode_game: state.currentGame,
-                    username: state.currentUser.username, nama: state.currentUser.nama, skor: finalScore, hp: sisaHP
-                });
-                
+                await utils.apiCall('submitScore', { tanggal: new Date().toLocaleDateString('id-ID'), kode_game: state.currentGame, username: state.currentUser.username, nama: state.currentUser.nama, skor: finalScore, hp: sisaHP });
                 state.inBattle = false; state.currentGame = null; utils.showView('view-siswa');
             }
         };
