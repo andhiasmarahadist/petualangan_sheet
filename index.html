@@ -14,17 +14,48 @@
     <style>
         body { font-family: 'Poppins', sans-serif; background-color: #e0f2fe; color: #1e3a8a; margin: 0; padding: 0; overflow-x: hidden; }
 
-        /* Animasi Battle */
-        @keyframes attackRight { 0% { transform: translateX(0) scale(1); } 50% { transform: translateX(120px) scale(1.3); } 100% { transform: translateX(0) scale(1); } }
-        @keyframes attackLeft { 0% { transform: translateX(0) scale(1); } 50% { transform: translateX(-120px) scale(1.3); } 100% { transform: translateX(0) scale(1); } }
-        @keyframes damageShake { 0% { transform: translateX(0); filter: brightness(1); } 20% { transform: translateX(-20px); filter: brightness(0.3) sepia(1) hue-rotate(-50deg) saturate(10); } 40% { transform: translateX(20px); } 60% { transform: translateX(-20px); } 80% { transform: translateX(20px); } 100% { transform: translateX(0); filter: brightness(1); opacity: 0.5; } }
-        @keyframes walkRight { 0% { transform: translateX(0) translateY(0); } 25% { transform: translateX(80px) translateY(-15px); } 50% { transform: translateX(160px) translateY(0); } 75% { transform: translateX(240px) translateY(-15px); } 100% { transform: translateX(350px) translateY(0); opacity: 0; } }
+        /* Animasi Battle Keren & Dramatis */
+        @keyframes attackHero {
+            0% { transform: translateX(0) scale(1) rotate(0deg); }
+            25% { transform: translateX(-40px) scale(0.9) rotate(-15deg); }
+            60% { transform: translateX(220px) scale(1.4) rotate(20deg); filter: drop-shadow(0 0 35px #3b82f6); }
+            100% { transform: translateX(0) scale(1) rotate(0deg); }
+        }
+        @keyframes attackMonster {
+            0% { transform: translateX(0) scale(1) rotate(0deg); }
+            25% { transform: translateX(40px) scale(0.9) rotate(15deg); }
+            60% { transform: translateX(-220px) scale(1.4) rotate(-20deg); filter: drop-shadow(0 0 35px #ef4444); }
+            100% { transform: translateX(0) scale(1) rotate(0deg); }
+        }
+        @keyframes violentDamage {
+            0% { transform: translate(0, 0) scale(1); filter: brightness(1); }
+            15% { transform: translate(-30px, 20px) scale(1.15); filter: brightness(2.5) sepia(1) hue-rotate(-50deg) saturate(10); }
+            30% { transform: translate(30px, -20px) scale(0.85); filter: brightness(0.2); }
+            45% { transform: translate(-25px, -15px) scale(1.1); }
+            60% { transform: translate(25px, 15px); }
+            75% { transform: translate(-10px, 5px); }
+            100% { transform: translate(0, 0) scale(1); filter: brightness(1); }
+        }
+        @keyframes arenaShake {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-12px, 8px); }
+            20%, 40%, 60%, 80% { transform: translate(12px, -8px); }
+        }
+        @keyframes critPop {
+            0% { transform: translate(-50%, -50%) scale(0.2) rotate(-25deg); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.8) rotate(8deg); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(1.3) rotate(-5deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0; }
+        }
+        @keyframes walkRight { 0% { transform: translateX(0) translateY(0); } 25% { transform: translateX(100px) translateY(-20px); } 50% { transform: translateX(200px) translateY(0); } 75% { transform: translateX(300px) translateY(-20px); } 100% { transform: translateX(450px) translateY(0); opacity: 0; } }
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
         @keyframes pulse-glow { 0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); } 70% { box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); } }
 
-        .anim-attack-hero { animation: attackRight 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 40; }
-        .anim-attack-monster { animation: attackLeft 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; z-index: 40; }
-        .anim-damage { animation: damageShake 0.6s ease-in-out forwards; }
+        .anim-attack-hero { animation: attackHero 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 40; }
+        .anim-attack-monster { animation: attackMonster 0.65s cubic-bezier(0.25, 1, 0.5, 1) forwards; z-index: 40; }
+        .anim-damage { animation: violentDamage 0.65s ease-in-out forwards; }
+        .anim-shake-arena { animation: arenaShake 0.45s ease-in-out; }
+        .anim-crit-pop { animation: critPop 0.85s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .anim-walk { animation: walkRight 1.5s linear forwards; }
         .anim-float { animation: float 3s ease-in-out infinite; }
         .anim-pulse { animation: pulse-glow 2s infinite; }
@@ -39,11 +70,9 @@
         .card-glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border-radius: 1.5rem; border: 2px solid rgba(255,255,255,0.5); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
         .glass-dark { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
 
-        /* Fullscreen Slide Animasi */
         #question-panel { transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s ease; transform: translateY(150%); opacity: 0; pointer-events: none; }
         #question-panel.show-q { transform: translateY(0); opacity: 1; pointer-events: auto; }
         
-        /* Background & Glow */
         .bg-tavern { background-color: #0f172a; background-image: radial-gradient(circle at center, #1e3a8a 0%, #0f172a 100%); }
     </style>
 </head>
@@ -122,7 +151,6 @@
                         </div>
 
                         <div id="active-game-panel" class="hidden mt-6 text-center">
-                            <!-- Display KODE GAME -->
                             <div class="text-6xl font-black text-blue-700 tracking-widest mb-4 drop-shadow-sm" id="display-kode-game">MEMUAT...</div>
                             <div id="lobby-wait-ui">
                                 <p class="font-bold text-lg mb-2">Pahlawan Berkumpul: <span id="count-waiting">0</span></p>
@@ -130,7 +158,6 @@
                                 <button onclick="app.startGameAdmin()" id="btn-start-game" class="bg-green-500 text-white font-bold py-3 px-8 rounded-full shadow-lg" disabled>MULAI PERTARUNGAN</button>
                             </div>
 
-                            <!-- Liveboard Realtime -->
                             <div id="liveboard-ui" class="hidden mt-6 text-left">
                                 <div class="flex justify-between items-center mb-6 border-b-2 pb-4 border-gray-200">
                                     <h3 class="text-2xl font-bold text-red-600"><i class="fas fa-broadcast-tower mr-2 anim-pulse"></i>Live Arena Ranking</h3>
@@ -162,7 +189,7 @@
             </div>
         </div>
 
-        <!-- VIEW: TAVERN (PILIH AVATAR 32 KARAKTER) -->
+        <!-- VIEW: TAVERN -->
         <div id="view-tavern" class="hidden min-h-screen w-full bg-tavern text-white p-4 relative overflow-hidden flex flex-col">
             <div class="absolute top-10 left-10 w-48 h-48 bg-blue-500 rounded-full mix-blend-screen filter blur-[80px] opacity-40 anim-pulse"></div>
             <div class="absolute bottom-10 right-10 w-64 h-64 bg-purple-600 rounded-full mix-blend-screen filter blur-[90px] opacity-40 anim-pulse" style="animation-delay: 1s;"></div>
@@ -183,7 +210,7 @@
         </div>
 
         <!-- VIEW: BATTLE ARENA -->
-        <div id="view-battle" class="hidden min-h-screen w-full bg-gray-900 text-white relative overflow-hidden flex flex-col">
+        <div id="view-battle" class="hidden min-h-screen w-full bg-gray-900 text-white relative overflow-hidden flex flex-col transition-all duration-200">
             <div class="flex justify-between items-center bg-gray-800 bg-opacity-80 backdrop-blur-sm p-4 z-20 border-b-2 border-gray-600">
                 <div class="text-center w-1/3">
                     <h3 id="battle-hero-name" class="text-blue-400 font-bold text-lg mb-1 drop-shadow">Hero</h3>
@@ -199,9 +226,12 @@
             </div>
 
             <div class="flex-1 flex items-center justify-between px-8 md:px-32 relative transition-all duration-700 z-10" id="battle-scene">
-                <div id="hero-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_30px_rgba(59,130,246,0.8)] z-10 transition-all">🧙‍♂️</div>
-                <div id="battle-effect" class="text-6xl hidden font-black text-yellow-400 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">CRITICAL!</div>
-                <div id="monster-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_30px_rgba(239,68,68,0.8)] z-10 anim-float">👾</div>
+                <div id="hero-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_35px_rgba(59,130,246,0.9)] z-10 transition-all transform origin-bottom">🧙‍♂️</div>
+                
+                <!-- VFX Pop Text -->
+                <div id="battle-effect" class="text-6xl hidden font-black absolute top-1/2 left-1/2 z-50 pointer-events-none">CRITICAL!</div>
+                
+                <div id="monster-sprite" class="text-8xl md:text-[10rem] drop-shadow-[0_0_35px_rgba(239,68,68,0.9)] z-10 anim-float transform origin-bottom">👾</div>
             </div>
 
             <div id="question-panel" class="absolute bottom-0 left-0 w-full p-4 md:p-8 z-30 flex justify-center">
@@ -225,8 +255,7 @@
             currentUser: null, currentGame: null,
             tavernPolling: null, liveboardPolling: null, battlePolling: null,
             takenAvatars: [], inBattle: false, adminMaxSoal: 10,
-            battle: { questions: [], currentIndex: 0, heroHP: 100, monsterHP: 100, score: 0, selectedAvatar: '🧙‍♂️', maxSoal: 10 },
-            matchState: { left: null, right: null, correctPairs: 0 }
+            battle: { questions: [], currentIndex: 0, heroHP: 100, monsterHP: 100, score: 0, selectedAvatar: '🧙‍♂️', maxSoal: 10 }
         };
 
         const utils = {
@@ -332,17 +361,15 @@
                 reader.readAsBinaryString(file);
             },
             
-            // ADMIN - GAMEPLAY CONTROLS
+            // ADMIN GAMEPLAY
             async generateGame() {
                 const max = document.getElementById('jumlah-soal').value;
                 state.adminMaxSoal = parseInt(max);
-                
-                // Menerapkan Format KODE yang diinginkan (ANDHI + 4 Digit) dari sisi Frontend
                 const forcedKode = 'ANDHI' + Math.floor(1000 + Math.random() * 9000);
                 
                 const res = await utils.apiCall('generateGame', { max, kode: forcedKode });
                 if(res.success) {
-                    state.currentGame = res.kode || forcedKode; // Pastikan menggunakan format
+                    state.currentGame = res.kode || forcedKode;
                     document.getElementById('game-setup-ui').classList.add('hidden');
                     document.getElementById('active-game-panel').classList.remove('hidden');
                     document.getElementById('display-kode-game').innerText = state.currentGame;
@@ -364,19 +391,15 @@
                 await utils.apiCall('startGame', { kode: state.currentGame });
                 clearInterval(state.tavernPolling);
                 document.getElementById('lobby-wait-ui').classList.add('hidden');
-                
-                // FIX: Menampilkan Container Liveboard secara pasti
                 document.getElementById('liveboard-ui').classList.remove('hidden');
                 document.getElementById('liveboard-ui').style.display = 'block';
-                
                 state.liveboardPolling = setInterval(() => this.pollLiveboard(), 2500);
             },
             
-            // FIX LIVEBOARD: Menambahkan proteksi Array agar .sort tidak menyebabkan Eror
             async pollLiveboard() {
                 const res = await utils.apiCall('getLiveProgress', { kode: state.currentGame });
                 if(res.success) {
-                    let playersData = Array.isArray(res.data) ? res.data : []; // Proteksi struktur data
+                    let playersData = Array.isArray(res.data) ? res.data : [];
                     if (playersData.length === 0) return;
 
                     const container = document.getElementById('liveboard-container');
@@ -480,27 +503,58 @@
                 await utils.apiCall('updateAvatar', { kode: state.currentGame, username: state.currentUser.username, avatar: a });
             },
 
-            // BATTLE LOGIC
+            // BATTLE LOGIC DENGAN FILTER DEDUP + VARIASI TIPE TIAP NOMOR
             async initBattle() {
                 const res = await utils.apiCall('getQuestions', { maxSoal: state.battle.maxSoal });
-                
-                // FIX VARIASI SOAL: Memanipulasi tipe data secara bergiliran jika backend hanya memberikan soal biasa
                 let rawQuestions = Array.isArray(res.data) ? res.data : [];
-                const varietyTypes = ['mc', 'type', 'dragdrop']; // Rotasi tipe soal agar interaktif
-                
-                const variedQuestions = rawQuestions.map((q, index) => {
-                    let assignType = q.type || varietyTypes[index % varietyTypes.length]; // Terapkan tipe variasi otomatis
-                    
-                    let opts = q.options;
-                    if(!opts || !Array.isArray(opts)) {
-                        // Buat pengecoh dummy jika backend tidak mengirim opsi (untuk MC & DragDrop)
-                        opts = [q.ans, "Opsi Lain 1", "Opsi Lain 2", "Opsi Lain 3"].sort(()=>0.5-Math.random());
-                    }
 
-                    return { ...q, type: assignType, options: opts };
+                // 1. DEDUPLIKASI SOAL (Mencegah soal sama untuk 1 siswa)
+                const uniqueMap = new Map();
+                rawQuestions.forEach(q => {
+                    const key = (q.q || '').trim().toLowerCase();
+                    if (key && !uniqueMap.has(key)) {
+                        uniqueMap.set(key, q);
+                    }
+                });
+                let uniqueQuestions = Array.from(uniqueMap.values());
+
+                // Acak urutan soal (Fisher-Yates Shuffle)
+                for (let i = uniqueQuestions.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [uniqueQuestions[i], uniqueQuestions[j]] = [uniqueQuestions[j], uniqueQuestions[i]];
+                }
+
+                // 2. VARIASI TIPE SOAL SELANG-SELING BERBEDABEDA TIAP NOMOR
+                const types = ['mc', 'type', 'dragdrop'];
+                let lastType = '';
+
+                const variedQuestions = uniqueQuestions.map((q) => {
+                    // Pastikan tipe soal nomor sekarang BERBEDA dari tipe soal sebelumnya
+                    let availableTypes = types.filter(t => t !== lastType);
+                    let selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+                    lastType = selectedType;
+
+                    let opts = q.options;
+                    if (!opts || !Array.isArray(opts) || opts.length < 2) {
+                        opts = [q.ans, "Pilihan B", "Pilihan C", "Pilihan D"];
+                    }
+                    opts = [...opts].sort(() => 0.5 - Math.random());
+
+                    return {
+                        ...q,
+                        type: selectedType,
+                        options: opts
+                    };
                 });
 
-                state.battle = { ...state.battle, questions: variedQuestions, currentIndex: 0, heroHP: 100, monsterHP: 100, score: 0 };
+                state.battle = { 
+                    ...state.battle, 
+                    questions: variedQuestions, 
+                    currentIndex: 0, 
+                    heroHP: 100, 
+                    monsterHP: 100, 
+                    score: 0 
+                };
                 
                 document.getElementById('hero-sprite').innerText = state.battle.selectedAvatar;
                 document.getElementById('battle-hero-name').innerText = state.currentUser.nama;
@@ -538,63 +592,84 @@
                 this.updateBattleUI();
                 const q = state.battle.questions[state.battle.currentIndex];
                 
-                document.getElementById('q-category').innerText = q.kategori || 'Challenge';
+                document.getElementById('q-category').innerText = `${q.kategori || 'Challenge'} • Mode: ${q.type.toUpperCase()}`;
                 document.getElementById('q-text').innerText = q.q;
                 const area = document.getElementById('q-interactive-area'); area.innerHTML = '';
 
-                // Render Sesuai Tipe Variasi
                 if(q.type === 'mc') {
                     const grid = document.createElement('div'); grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
                     q.options.forEach(opt => {
-                        const b = document.createElement('button'); b.className = 'p-4 border-2 border-blue-200 rounded-xl text-left hover:bg-blue-50 font-bold text-lg shadow-sm transition-colors'; b.innerText = opt;
+                        const b = document.createElement('button'); b.className = 'p-4 border-2 border-blue-200 rounded-xl text-left hover:bg-blue-50 font-bold text-lg shadow-sm transition-colors hover:border-blue-400'; b.innerText = opt;
                         b.onclick = () => this.processAnswer(opt === q.ans); grid.appendChild(b);
                     }); area.appendChild(grid);
                 } 
                 else if(q.type === 'type') {
-                    area.innerHTML = `<input type="text" id="ans-type" class="w-full p-4 border-2 border-blue-300 rounded-xl text-2xl font-mono mb-4 uppercase bg-gray-50 focus:outline-none focus:border-blue-500" placeholder="Ketik Jawaban di sini..."><button onclick="app.processAnswer(document.getElementById('ans-type').value.trim().toUpperCase() === '${q.ans}'.toUpperCase())" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg hover:opacity-90">SERANG!</button>`;
+                    area.innerHTML = `<input type="text" id="ans-type" class="w-full p-4 border-2 border-blue-300 rounded-xl text-2xl font-mono mb-4 uppercase bg-gray-50 focus:outline-none focus:border-blue-500" placeholder="Ketik Jawaban di sini..."><button onclick="app.processAnswer(document.getElementById('ans-type').value.trim().toUpperCase() === '${q.ans}'.toUpperCase())" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg hover:opacity-90">SERANG JUGA!</button>`;
                 } 
                 else if(q.type === 'dragdrop') {
-                    area.innerHTML = `<div class="flex flex-wrap gap-3 mb-6 justify-center">` + q.options.map(o => `<button onclick="document.getElementById('dropzone').innerText='${o}'" class="px-6 py-3 bg-blue-100 text-blue-900 font-bold text-lg rounded-xl border-2 border-blue-300 hover:bg-blue-200 shadow-sm">${o}</button>`).join('') + `</div><div class="p-6 border-4 border-dashed border-gray-400 rounded-2xl text-center text-2xl font-black bg-gray-50 text-gray-500 h-24 flex items-center justify-center transition-all" id="dropzone">PILIH JAWABAN DI ATAS</div><button onclick="app.processAnswer(document.getElementById('dropzone').innerText === '${q.ans}')" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg mt-6">SERANG!</button>`;
+                    area.innerHTML = `<div class="flex flex-wrap gap-3 mb-6 justify-center">` + q.options.map(o => `<button onclick="document.getElementById('dropzone').innerText='${o}'" class="px-6 py-3 bg-blue-100 text-blue-900 font-bold text-lg rounded-xl border-2 border-blue-300 hover:bg-blue-200 shadow-sm transition">${o}</button>`).join('') + `</div><div class="p-6 border-4 border-dashed border-gray-400 rounded-2xl text-center text-2xl font-black bg-gray-50 text-gray-500 h-24 flex items-center justify-center transition-all" id="dropzone">PILIH JAWABAN DI ATAS</div><button onclick="app.processAnswer(document.getElementById('dropzone').innerText === '${q.ans}')" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black text-xl py-4 rounded-xl shadow-lg mt-6">LEMPARKAN ATTACK!</button>`;
                 }
 
                 setTimeout(() => { qPanel.classList.add('show-q'); document.getElementById('q-interactive-area').style.pointerEvents = 'auto'; }, 1200); 
             },
 
+            // ANIMASI PERTARUNGAN KEREN & DRAMATIS
             async processAnswer(isCorrect) {
                 document.getElementById('q-interactive-area').style.pointerEvents = 'none';
                 document.getElementById('question-panel').classList.remove('show-q');
                 
-                const hero = document.getElementById('hero-sprite'); const mon = document.getElementById('monster-sprite'); const efx = document.getElementById('battle-effect');
+                const hero = document.getElementById('hero-sprite'); 
+                const mon = document.getElementById('monster-sprite'); 
+                const efx = document.getElementById('battle-effect');
+                const arena = document.getElementById('view-battle');
+
+                // Shake Arena untuk efek benturan keras
+                arena.classList.add('anim-shake-arena');
 
                 setTimeout(() => {
                     if(isCorrect) {
                         hero.classList.add('anim-attack-hero');
                         setTimeout(() => {
-                            mon.classList.add('anim-damage'); efx.innerText = 'TEPAT!'; efx.className = 'text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 font-black text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,1)] scale-150 transition-all'; efx.classList.remove('hidden');
-                            state.battle.monsterHP -= Math.ceil(100/state.battle.maxSoal); state.battle.score += (100/state.battle.maxSoal); this.updateBattleUI();
+                            mon.classList.add('anim-damage'); 
+                            efx.innerText = 'CRITICAL HIT!'; 
+                            efx.className = 'text-6xl font-black absolute top-1/2 left-1/2 text-yellow-400 drop-shadow-[0_0_30px_rgba(234,179,8,1)] anim-crit-pop pointer-events-none z-50'; 
+                            efx.classList.remove('hidden');
+                            
+                            state.battle.monsterHP -= Math.ceil(100/state.battle.maxSoal); 
+                            state.battle.score += (100/state.battle.maxSoal); 
+                            this.updateBattleUI();
                         }, 300);
                     } else {
                         mon.classList.add('anim-attack-monster');
                         setTimeout(() => {
-                            hero.classList.add('anim-damage'); efx.innerText = 'MISS!'; efx.className = 'text-6xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 font-black text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,1)] scale-150 transition-all'; efx.classList.remove('hidden');
-                            state.battle.heroHP -= 25; this.updateBattleUI();
+                            hero.classList.add('anim-damage'); 
+                            efx.innerText = 'BLOCKED / DAMAGE!'; 
+                            efx.className = 'text-6xl font-black absolute top-1/2 left-1/2 text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,1)] anim-crit-pop pointer-events-none z-50'; 
+                            efx.classList.remove('hidden');
+                            
+                            state.battle.heroHP -= 25; 
+                            this.updateBattleUI();
                         }, 300);
                     }
-                }, 300); 
+                }, 200); 
 
                 setTimeout(() => {
-                    hero.classList.remove('anim-attack-hero', 'anim-damage'); mon.classList.remove('anim-attack-monster', 'anim-damage'); efx.classList.add('hidden');
+                    hero.classList.remove('anim-attack-hero', 'anim-damage'); 
+                    mon.classList.remove('anim-attack-monster', 'anim-damage'); 
+                    arena.classList.remove('anim-shake-arena');
+                    efx.classList.add('hidden');
+
                     if(isCorrect && state.battle.currentIndex < state.battle.maxSoal - 1 && state.battle.heroHP > 0) {
                         mon.style.opacity = 0; hero.classList.add('anim-walk'); 
                         setTimeout(() => { hero.classList.remove('anim-walk'); mon.style.opacity = 1; state.battle.currentIndex++; this.updateLiveProgress(); this.renderQuestion(); }, 1500);
                     } else { state.battle.currentIndex++; this.updateLiveProgress(); this.renderQuestion(); }
-                }, 1800);
+                }, 1900);
             },
 
             async endBattle(forced = false) {
                 clearInterval(state.battlePolling);
                 const finalScore = Math.round(state.battle.score); const sisaHP = Math.max(0, state.battle.heroHP);
-                if(!forced) await Swal.fire({ title: sisaHP > 0 ? 'MENANG!' : 'GUGUR...', html: `Skor: <b class="text-2xl">${finalScore}</b><br>HP: <b class="text-xl">${sisaHP}</b>`, icon: sisaHP > 0 ? 'success' : 'error' });
+                if(!forced) await Swal.fire({ title: sisaHP > 0 ? 'VICTORY!' : 'GUGUR IN ACTION', html: `Skor: <b class="text-2xl text-blue-600">${finalScore}</b><br>HP Tersisa: <b class="text-xl text-red-500">${sisaHP}</b>`, icon: sisaHP > 0 ? 'success' : 'error' });
                 await utils.apiCall('submitScore', { tanggal: new Date().toLocaleDateString('id-ID'), kode_game: state.currentGame, username: state.currentUser.username, nama: state.currentUser.nama, skor: finalScore, hp: sisaHP });
                 state.inBattle = false; state.currentGame = null; utils.showView('view-siswa');
             }
