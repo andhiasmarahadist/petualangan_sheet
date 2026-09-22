@@ -185,7 +185,7 @@
                         <h2 class="text-2xl font-bold text-blue-900 mb-6"><i class="fas fa-dice-d20 mr-2 text-purple-500"></i>Generate Sesi Quest</h2>
                         <div id="game-setup-ui" class="flex flex-col md:flex-row items-end gap-4">
                             <div class="flex-1 w-full">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Soal / Monster</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah Soal (Digenerate Otomatis)</label>
                                 <select id="jumlah-soal" class="w-full border-2 border-gray-300 rounded-lg p-3 focus:ring-blue-500 focus:border-blue-500 font-semibold">
                                     <option value="10">10 Soal (Petualangan Singkat)</option>
                                     <option value="20">20 Soal (Eksplorasi Menengah)</option>
@@ -331,8 +331,8 @@
         <!-- ============================================== -->
         <!-- VIEW: BATTLE ARENA (INTI GAME) -->
         <!-- ============================================== -->
-        <div id="view-battle" class="hidden min-h-screen w-full bg-[url('https://placehold.co/1920x1080/0f172a/ffffff?text=Arena')] bg-cover bg-center relative">
-            <div class="absolute inset-0 bg-gray-900 bg-opacity-70"></div>
+        <div id="view-battle" class="hidden min-h-screen w-full bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1920&auto=format&fit=crop')] bg-cover bg-center relative">
+            <div class="absolute inset-0 bg-gray-900 bg-opacity-80 backdrop-blur-sm"></div>
             
             <div class="relative z-10 max-w-6xl mx-auto p-4 flex flex-col min-h-screen">
                 
@@ -363,7 +363,7 @@
                 <!-- Arena Animasi -->
                 <div class="flex-1 flex items-center justify-between px-4 md:px-20 mb-6">
                     <!-- Hero Sprite -->
-                    <div id="hero-sprite" class="text-8xl md:text-9xl drop-shadow-2xl transition-transform duration-300">
+                    <div id="hero-sprite" class="text-8xl md:text-9xl drop-shadow-[0_0_35px_rgba(59,130,246,0.9)] transition-transform duration-300 anim-float">
                         🧙‍♂️
                     </div>
                     
@@ -373,7 +373,7 @@
                     </div>
 
                     <!-- Monster Sprite -->
-                    <div id="monster-sprite" class="text-8xl md:text-9xl drop-shadow-2xl transition-transform duration-300 filter sepia hue-rotate-180">
+                    <div id="monster-sprite" class="text-8xl md:text-9xl drop-shadow-[0_0_35px_rgba(239,68,68,0.9)] transition-transform duration-300 anim-float filter sepia hue-rotate-180" style="animation-delay: 1.5s;">
                         👾
                     </div>
                 </div>
@@ -403,7 +403,7 @@
         // KONFIGURASI APLIKASI
         // UBAH IS_PREVIEW KE false JIKA AKAN DI-DEPLOY KE BLOGGER MENGGUNAKAN GAS
         const IS_PREVIEW = false; 
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIRwUw8S0QnW_6dx-Z4a37F1jttkigS2vkNuMcPuc1Qm13yAoCqKDUJ-ULupWuD7LO/exec";
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwIHOtoHnKSm51jfPwVuGrG3jlHv25UrYqnWav7up93PUxgw1MaL5u3FBk7dCxfa-Wb/exec";
 
         // State Aplikasi
         const state = {
@@ -429,14 +429,6 @@
             users: [
                 { username: 'admin', password: 'edudigital', role: 'admin', nama: 'Guru Sakti' },
                 { username: 'peserta', password: 'edudigital', role: 'siswa', nama: 'Siswa Jagoan' }
-            ],
-            bankSoal: [
-                { id: 1, kategori: 'Fungsi Dasar', type: 'mc', q: 'Fungsi untuk menjumlahkan sekumpulan data numerik pada range tertentu adalah?', options: ['=SUM()', '=AVERAGE()', '=MIN()', '=MAX()'], ans: '=SUM()' },
-                { id: 2, kategori: 'Pengenalan UI', type: 'mc', q: 'Menu apa yang digunakan untuk membuat grafik (Chart)?', options: ['Insert > Chart', 'Format > Chart', 'Data > Chart', 'View > Chart'], ans: 'Insert > Chart' },
-                { id: 3, kategori: 'Fungsi Dasar', type: 'type', q: 'Ketik rumus untuk mencari nilai TERTINGGI dari sel A1 sampai A10:', ans: '=MAX(A1:A10)' },
-                { id: 4, kategori: 'Fungsi Dasar', type: 'type', q: 'Ketik rumus IF untuk: Jika nilai A1 lebih dari 70 maka "Lulus", jika tidak "Gagal" (gunakan tanda kutip).', ans: '=IF(A1>70,"Lulus","Gagal")' },
-                { id: 5, kategori: 'Pengenalan UI', type: 'mc', q: 'Ikon mana yang digunakan untuk membagikan file Google Sheet?', options: ['Tombol Share Hijau/Biru', 'Ikon Print', 'Ikon Filter', 'Ikon Komentar'], ans: 'Tombol Share Hijau/Biru' },
-                { id: 6, kategori: 'Fungsi Dasar', type: 'mc', q: 'Fungsi =AVERAGE() digunakan untuk?', options: ['Mencari rata-rata', 'Menjumlahkan', 'Mencari nilai tengah', 'Menghitung teks'], ans: 'Mencari rata-rata' }
             ],
             sessions: [],
             liveTavern: [],
@@ -479,7 +471,7 @@
             }
         };
 
-        // Simulasi Backend GAS
+        // Simulasi Backend GAS untuk Fitur Generator Otomatis (Saat Mode Preview)
         function mockBackend(action, data) {
             switch(action) {
                 case 'login': {
@@ -556,11 +548,51 @@
                     return { success: true, status: s4 ? s4.status : 'error' };
                 }
                 case 'getQuestions': {
-                    let shuffled = [...DUMMY_DB.bankSoal].sort(() => 0.5 - Math.random());
-                    while(shuffled.length < data.maxSoal) {
-                        shuffled = shuffled.concat([...DUMMY_DB.bankSoal].sort(() => 0.5 - Math.random()));
+                    // GENERATOR OTOMATIS (SAMA SEPERTI BACKEND GAS)
+                    let generatedQuestions = [];
+                    const maxSoal = data.maxSoal || 10;
+                    
+                    const functions = [
+                        { name: 'SUM', desc: 'menjumlahkan nilai' },
+                        { name: 'AVERAGE', desc: 'mencari nilai rata-rata' },
+                        { name: 'MIN', desc: 'mencari nilai terendah' },
+                        { name: 'MAX', desc: 'mencari nilai tertinggi' },
+                        { name: 'COUNT', desc: 'menghitung jumlah sel berisi angka' },
+                        { name: 'COUNTA', desc: 'menghitung jumlah sel tidak kosong' }
+                    ];
+
+                    const uiQ = [
+                        { q: 'Menu apa yang digunakan untuk membuat grafik (Chart)?', ans: 'Insert > Chart', opts: ['Insert > Chart', 'Format > Chart', 'Data > Chart', 'View > Chart'] },
+                        { q: 'Ikon mana yang digunakan untuk membagikan file Google Sheet?', ans: 'Tombol Share', opts: ['Tombol Share', 'Ikon Print', 'Ikon Filter', 'Ikon Komentar'] },
+                        { q: 'Menu untuk mengatur pembekuan baris (Freeze Panes) terdapat di?', ans: 'View > Freeze', opts: ['View > Freeze', 'Format > Freeze', 'Edit > Freeze', 'Insert > Freeze'] },
+                        { q: 'Kombinasi tombol keyboard untuk menyalin data (Copy) adalah?', ans: 'Ctrl + C', opts: ['Ctrl + C', 'Ctrl + V', 'Ctrl + X', 'Ctrl + Z'] }
+                    ];
+
+                    for (let i = 0; i < maxSoal; i++) {
+                        let randType = Math.floor(Math.random() * 3);
+                        let qObj = {};
+                        if (randType === 0) {
+                            let f = functions[Math.floor(Math.random() * functions.length)];
+                            let optSet = new Set([`=${f.name}()`]);
+                            while(optSet.size < 4) {
+                                optSet.add(`=${functions[Math.floor(Math.random() * functions.length)].name}()`);
+                                if(optSet.size < 4) optSet.add(`=IF()`);
+                                if(optSet.size < 4) optSet.add(`=VLOOKUP()`);
+                            }
+                            qObj = { id: i, kategori: 'Fungsi Dasar', type: 'mc', q: `Fungsi yang digunakan untuk ${f.desc} adalah?`, ans: `=${f.name}()`, options: Array.from(optSet) };
+                        } else if (randType === 1) {
+                            let f = functions[Math.floor(Math.random() * functions.length)];
+                            let col = String.fromCharCode(65 + Math.floor(Math.random() * 5));
+                            let sr = Math.floor(Math.random() * 5) + 1;
+                            let er = sr + Math.floor(Math.random() * 10) + 1;
+                            qObj = { id: i, kategori: 'Ketik Rumus', type: 'type', q: `Ketik rumus untuk ${f.desc} sel ${col}${sr} sampai ${col}${er}:`, ans: `=${f.name}(${col}${sr}:${col}${er})`, options: [] };
+                        } else {
+                            let ui = uiQ[Math.floor(Math.random() * uiQ.length)];
+                            qObj = { id: i, kategori: 'Pengenalan Aplikasi', type: 'mc', q: ui.q, ans: ui.ans, options: ui.opts };
+                        }
+                        generatedQuestions.push(qObj);
                     }
-                    return { success: true, data: shuffled.slice(0, data.maxSoal) };
+                    return { success: true, data: generatedQuestions };
                 }
                 case 'submitScore':
                     DUMMY_DB.laporan.push(data);
@@ -989,14 +1021,19 @@
                 document.getElementById('q-interactive-area').style.pointerEvents = 'none';
                 const isCorrect = userAns === trueAns;
                 
+                const q = state.battle.questions[state.battle.currentIndex];
+                const isTyping = (q.type === 'type'); 
+                
                 const heroEl = document.getElementById('hero-sprite');
                 const monsterEl = document.getElementById('monster-sprite');
                 const effect = document.getElementById('battle-effect');
 
                 if (isCorrect) {
-                    heroEl.classList.add('anim-attack-hero');
+                    if (!isTyping) heroEl.classList.add('anim-attack-hero');
+                    
                     setTimeout(() => {
-                        monsterEl.classList.add('anim-damage');
+                        if (!isTyping) monsterEl.classList.add('anim-damage');
+                        
                         effect.innerText = 'Tepat!'; 
                         effect.classList.remove('hidden'); 
                         effect.className = 'text-5xl font-black text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)] z-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
@@ -1005,29 +1042,33 @@
                         state.battle.monsterHP -= dmg;
                         state.battle.score += (100 / state.battle.maxSoal);
                         this.updateBattleUI();
-                    }, 300);
+                    }, isTyping ? 0 : 300); 
                 } else {
-                    monsterEl.classList.add('anim-attack-monster');
+                    if (!isTyping) monsterEl.classList.add('anim-attack-monster');
+                    
                     setTimeout(() => {
-                        heroEl.classList.add('anim-damage');
+                        if (!isTyping) heroEl.classList.add('anim-damage');
+                        
                         effect.innerText = 'MISS!'; 
                         effect.classList.remove('hidden'); 
                         effect.className = 'text-5xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)] z-50 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2';
                         
                         state.battle.heroHP -= 20; 
                         this.updateBattleUI();
-                    }, 300);
+                    }, isTyping ? 0 : 300);
                 }
 
                 setTimeout(() => {
-                    heroEl.classList.remove('anim-attack-hero', 'anim-damage');
-                    monsterEl.classList.remove('anim-attack-monster', 'anim-damage');
+                    if (!isTyping) {
+                        heroEl.classList.remove('anim-attack-hero', 'anim-damage');
+                        monsterEl.classList.remove('anim-attack-monster', 'anim-damage');
+                    }
                     effect.classList.add('hidden');
                     
                     state.battle.currentIndex++;
                     document.getElementById('q-interactive-area').style.pointerEvents = 'auto';
                     this.renderQuestion();
-                }, 1500);
+                }, isTyping ? 1000 : 1500);
             },
 
             async endBattle() {
